@@ -1,0 +1,46 @@
+From a035dfb0c2bec9bfb9f707053c10230847ddd50e Mon Sep 17 00:00:00 2001
+From: Joe Groocock <me@frebib.net>
+Date: Tue, 7 Jan 2020 17:50:01 +0000
+Subject: webhook: log when sending webhook event
+
+---
+ plugin/webhook/webhook.go | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/plugin/webhook/webhook.go b/plugin/webhook/webhook.go
+index 60eff999..269a3d1d 100644
+--- a/plugin/webhook/webhook.go
++++ b/plugin/webhook/webhook.go
+@@ -19,6 +19,7 @@ import (
+ 	"github.com/drone/drone/core"
+ 
+ 	"github.com/99designs/httpsignatures-go"
++	"github.com/sirupsen/logrus"
+ )
+ 
+ // required http headers
+@@ -64,6 +65,21 @@ func (s *sender) Send(ctx context.Context, in *core.WebhookData) error {
+ 	if s.match(in.Event, in.Action) == false {
+ 		return nil
+ 	}
++
++	logger := logrus.
++		WithField("event", in.Event).
++		WithField("action", in.Action)
++	if in.Repo != nil {
++		logger = logger.WithField("repo", in.Repo.Name)
++	}
++	if in.Build != nil {
++		logger = logger.
++			WithField("build.id", in.Build.ID).
++			WithField("build.number", in.Build.Number).
++			WithField("build.status", in.Build.Status)
++	}
++	logger.Debugln("webhook: sending global webhook")
++
+ 	wrapper := payload{
+ 		WebhookData: in,
+ 		System:      s.System,
+-- 
+2.24.1
+
