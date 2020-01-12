@@ -35,10 +35,16 @@ func Middleware(next http.Handler) http.Handler {
 		start := time.Now()
 		next.ServeHTTP(w, r.WithContext(ctx))
 		end := time.Now()
+
+		client := r.RemoteAddr
+		fwded := r.Header.Get("X-Forwarded-For")
+		if fwded != "" {
+			client = fwded
+		}
 		log.WithFields(logrus.Fields{
 			"method":   r.Method,
 			"request":  r.RequestURI,
-			"remote":   r.RemoteAddr,
+			"remote":   client,
 			"latency":  end.Sub(start),
 			"time":     end.Format(time.RFC3339),
 			"authtype": authType(r),
