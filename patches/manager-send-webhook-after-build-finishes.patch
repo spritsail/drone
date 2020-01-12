@@ -1,0 +1,57 @@
+From 6a59ea777f2a33333004e469ec409d1123acbcc5 Mon Sep 17 00:00:00 2001
+From: Joe Groocock <me@frebib.net>
+Date: Tue, 7 Jan 2020 13:59:15 +0000
+Subject: manager: send webhook after build finishes
+
+add an additional and final webhook that notifies of the build status
+after completion (success/failure)
+---
+ operator/manager/manager.go  |  1 +
+ operator/manager/teardown.go | 12 ++++++++++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/operator/manager/manager.go b/operator/manager/manager.go
+index 67c18ebe..07caaa74 100644
+--- a/operator/manager/manager.go
++++ b/operator/manager/manager.go
+@@ -437,6 +437,7 @@ func (m *Manager) AfterAll(ctx context.Context, stage *core.Stage) error {
+ 		Stages:    m.Stages,
+ 		Status:    m.Status,
+ 		Users:     m.Users,
++		Webhook:   m.Webhook,
+ 	}
+ 	return t.do(ctx, stage)
+ }
+diff --git a/operator/manager/teardown.go b/operator/manager/teardown.go
+index c34eff73..684ca60b 100644
+--- a/operator/manager/teardown.go
++++ b/operator/manager/teardown.go
+@@ -37,6 +37,7 @@ type teardown struct {
+ 	Status    core.StatusService
+ 	Stages    core.StageStore
+ 	Users     core.UserStore
++	Webhook   core.WebhookSender
+ }
+ 
+ func (t *teardown) do(ctx context.Context, stage *core.Stage) error {
+@@ -167,6 +168,17 @@ func (t *teardown) do(ctx context.Context, stage *core.Stage) error {
+ 			Warnln("manager: cannot publish build event")
+ 	}
+ 
++	payload := &core.WebhookData{
++		Event:  core.WebhookEventBuild,
++		Action: core.WebhookActionUpdated,
++		Repo:   repo,
++		Build:  build,
++	}
++	err = t.Webhook.Send(noContext, payload)
++	if err != nil {
++		logger.WithError(err).Warnln("manager: cannot send global webhook")
++	}
++
+ 	user, err := t.Users.Find(noContext, repo.UserID)
+ 	if err != nil {
+ 		logger.WithError(err).
+-- 
+2.24.1
+
