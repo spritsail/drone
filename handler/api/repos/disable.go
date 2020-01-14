@@ -36,13 +36,14 @@ func HandleDisable(
 			name  = chi.URLParam(r, "name")
 		)
 
+		log := logger.FromRequest(r).
+			WithField("namespace", owner).
+			WithField("name", name)
+
 		repo, err := repos.FindName(r.Context(), owner, name)
 		if err != nil {
 			render.NotFound(w, err)
-			logger.FromRequest(r).
-				WithError(err).
-				WithField("namespace", owner).
-				WithField("name", name).
+			log.WithError(err).
 				Debugln("api: repository not found")
 			return
 		}
@@ -50,10 +51,7 @@ func HandleDisable(
 		err = repos.Update(r.Context(), repo)
 		if err != nil {
 			render.InternalError(w, err)
-			logger.FromRequest(r).
-				WithError(err).
-				WithField("namespace", owner).
-				WithField("name", name).
+			log.WithError(err).
 				Warnln("api: cannot update repository")
 			return
 		}
@@ -64,25 +62,20 @@ func HandleDisable(
 			err = repos.Delete(r.Context(), repo)
 			if err != nil {
 				render.InternalError(w, err)
-				logger.FromRequest(r).
-					WithError(err).
-					WithField("namespace", owner).
-					WithField("name", name).
+				log.WithError(err).
 					Warnln("api: cannot delete repository")
 				return
 			}
 		}
 
-		err = sender.Send(r.Context(), &core.WebhookData{
+		logContext := logger.WithContext(r.Context(), log)
+		err = sender.Send(logContext, &core.WebhookData{
 			Event:  core.WebhookEventRepo,
 			Action: action,
 			Repo:   repo,
 		})
 		if err != nil {
-			logger.FromRequest(r).
-				WithError(err).
-				WithField("namespace", owner).
-				WithField("name", name).
+			log.WithError(err).
 				Warnln("api: cannot send webhook")
 		}
 

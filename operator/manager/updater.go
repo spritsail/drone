@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 
 	"github.com/drone/drone/core"
+	"github.com/drone/drone/logger"
 
 	"github.com/sirupsen/logrus"
 )
@@ -33,7 +34,7 @@ type updater struct {
 }
 
 func (u *updater) do(ctx context.Context, step *core.Step) error {
-	logger := logrus.WithFields(
+	log := logrus.WithFields(
 		logrus.Fields{
 			"step.status": step.Status,
 			"step.name":   step.Name,
@@ -43,31 +44,36 @@ func (u *updater) do(ctx context.Context, step *core.Step) error {
 
 	err := u.Steps.Update(noContext, step)
 	if err != nil {
-		logger.WithError(err).Warnln("manager: cannot update step")
+		log.WithError(err).
+			Warnln("manager: cannot update step")
 		return err
 	}
 
 	stage, err := u.Stages.Find(noContext, step.StageID)
 	if err != nil {
-		logger.WithError(err).Warnln("manager: cannot find stage")
+		log.WithError(err).
+			Warnln("manager: cannot find stage")
 		return nil
 	}
 
 	build, err := u.Builds.Find(noContext, stage.BuildID)
 	if err != nil {
-		logger.WithError(err).Warnln("manager: cannot find build")
+		log.WithError(err).
+			Warnln("manager: cannot find build")
 		return nil
 	}
 
 	repo, err := u.Repos.Find(noContext, build.RepoID)
 	if err != nil {
-		logger.WithError(err).Warnln("manager: cannot find repo")
+		log.WithError(err).
+			Warnln("manager: cannot find repo")
 		return nil
 	}
 
 	stages, err := u.Stages.ListSteps(noContext, build.ID)
 	if err != nil {
-		logger.WithError(err).Warnln("manager: cannot list stages")
+		log.WithError(err).
+			Warnln("manager: cannot list stages")
 		return nil
 	}
 
@@ -80,7 +86,8 @@ func (u *updater) do(ctx context.Context, step *core.Step) error {
 		Data:       data,
 	})
 	if err != nil {
-		logger.WithError(err).Warnln("manager: cannot publish build event")
+		log.WithError(err).
+			Warnln("manager: cannot publish build event")
 	}
 
 	payload := &core.WebhookData{
@@ -89,9 +96,11 @@ func (u *updater) do(ctx context.Context, step *core.Step) error {
 		Repo:   repo,
 		Build:  build,
 	}
-	err = u.Webhook.Send(noContext, payload)
+	logContext := logger.WithContext(noContext, log)
+	err = u.Webhook.Send(logContext, payload)
 	if err != nil {
-		logger.WithError(err).Warnln("manager: cannot send global webhook")
+		log.WithError(err).
+			Warnln("manager: cannot send global webhook")
 	}
 	return nil
 }

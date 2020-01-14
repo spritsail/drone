@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/drone/drone/core"
+	"github.com/drone/drone/logger"
 
 	"github.com/99designs/httpsignatures-go"
 )
@@ -64,6 +65,10 @@ func (s *sender) Send(ctx context.Context, in *core.WebhookData) error {
 	if s.match(in.Event, in.Action) == false {
 		return nil
 	}
+
+	logger.FromContext(ctx).
+		Debugln("webhook: sending global webhook")
+
 	wrapper := payload{
 		WebhookData: in,
 		System:      s.System,
