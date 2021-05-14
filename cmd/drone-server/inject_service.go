@@ -20,7 +20,6 @@ import (
 	"github.com/drone/drone/cmd/drone-server/config"
 	"github.com/drone/drone/core"
 	"github.com/drone/drone/livelog"
-	"github.com/drone/drone/metric/sink"
 	"github.com/drone/drone/pubsub"
 	"github.com/drone/drone/service/canceler"
 	"github.com/drone/drone/service/canceler/reaper"
@@ -63,7 +62,6 @@ var serviceSet = wire.NewSet(
 
 	provideRepositoryService,
 	provideContentService,
-	provideDatadog,
 	provideHookService,
 	provideNetrcService,
 	provideOrgService,
@@ -182,35 +180,5 @@ func provideReaper(
 		config.Cleanup.Running,
 		config.Cleanup.Pending,
 		config.Cleanup.Buffer,
-	)
-}
-
-// provideDatadog is a Wire provider function that returns the
-// datadog sink.
-func provideDatadog(
-	users core.UserStore,
-	repos core.RepositoryStore,
-	builds core.BuildStore,
-	system *core.System,
-	config config.Config,
-) *sink.Datadog {
-	return sink.New(
-		users,
-		repos,
-		builds,
-		*system,
-		sink.Config{
-			Endpoint:        config.Datadog.Endpoint,
-			Token:           config.Datadog.Token,
-			EnableGithub:    config.IsGitHub(),
-			EnableGithubEnt: config.IsGitHubEnterprise(),
-			EnableGitlab:    config.IsGitLab(),
-			EnableBitbucket: config.IsBitbucket(),
-			EnableStash:     config.IsStash(),
-			EnableGogs:      config.IsGogs(),
-			EnableGitea:     config.IsGitea(),
-			EnableGitee:     config.IsGitee(),
-			EnableAgents:    !config.Agent.Disabled,
-		},
 	)
 }
