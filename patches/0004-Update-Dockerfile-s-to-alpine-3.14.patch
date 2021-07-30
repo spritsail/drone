@@ -1,7 +1,7 @@
 From ef599d20da17e6876ad447c8ccadbc15a97434cf Mon Sep 17 00:00:00 2001
 From: Joe Groocock <me@frebib.net>
 Date: Fri, 14 May 2021 08:44:07 +0100
-Subject: Update Dockerfile(s) to alpine:3.13
+Subject: Update Dockerfile(s) to alpine:3.14
 
 Signed-off-by: Joe Groocock <me@frebib.net>
 ---
@@ -20,11 +20,11 @@ index 3dd9362d..4bf92545 100644
 +++ b/docker/Dockerfile.agent.linux.amd64
 @@ -1,7 +1,7 @@
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.13 as alpine
++FROM alpine:3.14 as alpine
  RUN apk add -U --no-cache ca-certificates
  
 -FROM alpine:3.11
-+FROM alpine:3.13
++FROM alpine:3.14
  ENV GODEBUG netdns=go
  ENV DRONE_RUNNER_OS=linux
  ENV DRONE_RUNNER_ARCH=amd64
@@ -34,11 +34,11 @@ index 0a0953c9..ef6145f3 100644
 +++ b/docker/Dockerfile.controller.linux.amd64
 @@ -1,7 +1,7 @@
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.13 as alpine
++FROM alpine:3.14 as alpine
  RUN apk add -U --no-cache ca-certificates
  
 -FROM alpine:3.11
-+FROM alpine:3.13
++FROM alpine:3.14
  ENV GODEBUG netdns=go
  ENV DRONE_RUNNER_OS=linux
  ENV DRONE_RUNNER_ARCH=amd64
@@ -48,11 +48,11 @@ index e5af6e16..c190d86f 100644
 +++ b/docker/Dockerfile.controller.linux.arm
 @@ -1,7 +1,7 @@
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.13 as alpine
++FROM alpine:3.14 as alpine
  RUN apk add -U --no-cache ca-certificates
  
 -FROM alpine:3.11
-+FROM alpine:3.13
++FROM alpine:3.14
  ENV GODEBUG=netdns=go
  ENV DRONE_RUNNER_OS=linux
  ENV DRONE_RUNNER_ARCH=arm
@@ -62,11 +62,11 @@ index d872c2dc..02d561b3 100644
 +++ b/docker/Dockerfile.controller.linux.arm64
 @@ -1,7 +1,7 @@
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.13 as alpine
++FROM alpine:3.14 as alpine
  RUN apk add -U --no-cache ca-certificates
  
 -FROM alpine:3.11
-+FROM alpine:3.13
++FROM alpine:3.14
  ENV GODEBUG=netdns=go
  ENV DRONE_RUNNER_OS=linux
  ENV DRONE_RUNNER_ARCH=arm64
@@ -78,11 +78,11 @@ index 3e669ca1..0a2f537a 100644
  # docker build --rm -f docker/Dockerfile -t drone/drone .
  
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.13 as alpine
++FROM alpine:3.14 as alpine
  RUN apk add -U --no-cache ca-certificates
  
 -FROM alpine:3.11
-+FROM alpine:3.13
++FROM alpine:3.14
  EXPOSE 80 443
  VOLUME /data
  
@@ -94,11 +94,11 @@ index 1b6ce60b..1238fe05 100644
  # docker build --rm -f docker/Dockerfile -t drone/drone .
  
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.13 as alpine
++FROM alpine:3.14 as alpine
  RUN apk add -U --no-cache ca-certificates
  
 -FROM alpine:3.11
-+FROM alpine:3.13
++FROM alpine:3.14
  EXPOSE 80 443
  VOLUME /data
  
@@ -110,11 +110,11 @@ index b83678b1..0255effb 100644
  # docker build --rm -f docker/Dockerfile -t drone/drone .
  
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.13 as alpine
++FROM alpine:3.14 as alpine
  RUN apk add -U --no-cache ca-certificates
  
 -FROM alpine:3.11
-+FROM alpine:3.13
++FROM alpine:3.14
  EXPOSE 80 443
  VOLUME /data
  

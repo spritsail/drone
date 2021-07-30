@@ -14,8 +14,8 @@ steps:
   - apk --no-cache add git
   - git clone https://github.com/drone/drone.git
   - cd drone
-  - git config user.name ${DRONE_COMMIT_AUTHOR}
-  - git config user.email ${DRONE_COMMIT_AUTHOR_EMAIL}
+  - git config user.name ${DRONE_COMMIT_AUTHOR:-drone}
+  - git config user.email ${DRONE_COMMIT_AUTHOR_EMAIL:-builder@drone.spritsail.io}
   - git am ../patches/*
 
 - name: build-drone
