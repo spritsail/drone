@@ -7,20 +7,6 @@ platform:
   arch: amd64
 
 steps:
-- name: build-drone-ui
-  pull: always
-  image: node:14-alpine3.14
-  commands:
-  # For fuck sake this shit requires python2
-  - apk --no-cache add git python2 make g++
-  - git clone https://github.com/drone/drone-ui.git -b drone2
-  - cd drone-ui
-  # Unset CI here because the build fails on warnings when CI=true 🤦
-  - unset CI
-  # 🤮🤮🤮
-  - npm install
-  - npm run build
-
 - name: patch
   image: alpine
   pull: always
@@ -37,13 +23,7 @@ steps:
   image: golang:alpine
   commands:
   - apk --no-cache add gcc libc-dev
-  - go install github.com/bradrydzewski/togo@latest
-  - cd drone-ui
-  # I have no idea why Go requires this when replacing the module
-  - go mod init github.com/drone/drone-ui
-  - go generate ./dist
-  - cd ../drone
-  - go mod edit -replace github.com/drone/drone-ui=../drone-ui
+  - cd drone
   - go build -a -ldflags "-w -s -extldflags \"-static\"" -o ../release/linux/amd64/drone-server ./cmd/drone-server
 
 - name: build-docker
