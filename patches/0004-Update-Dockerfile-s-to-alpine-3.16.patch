@@ -1,7 +1,7 @@
-From ef599d20da17e6876ad447c8ccadbc15a97434cf Mon Sep 17 00:00:00 2001
+From f7da8e9e1b486ddaf7946d6c16877a212fd3d772 Mon Sep 17 00:00:00 2001
 From: Joe Groocock <me@frebib.net>
-Date: Fri, 14 May 2021 08:44:07 +0100
-Subject: Update Dockerfile(s) to alpine:3.14
+Date: Sat, 18 Jun 2022 08:41:02 +0000
+Subject: Update Dockerfile(s) to alpine:3.16
 
 Signed-off-by: Joe Groocock <me@frebib.net>
 ---
@@ -15,109 +15,109 @@ Signed-off-by: Joe Groocock <me@frebib.net>
  7 files changed, 14 insertions(+), 14 deletions(-)
 
 diff --git a/docker/Dockerfile.agent.linux.amd64 b/docker/Dockerfile.agent.linux.amd64
-index 3dd9362d..4bf92545 100644
+index 3dd9362d..44083d5f 100644
 --- a/docker/Dockerfile.agent.linux.amd64
 +++ b/docker/Dockerfile.agent.linux.amd64
 @@ -1,7 +1,7 @@
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.14 as alpine
++FROM alpine:3.16 as alpine
  RUN apk add -U --no-cache ca-certificates
  
 -FROM alpine:3.11
-+FROM alpine:3.14
++FROM alpine:3.16
  ENV GODEBUG netdns=go
  ENV DRONE_RUNNER_OS=linux
  ENV DRONE_RUNNER_ARCH=amd64
 diff --git a/docker/Dockerfile.controller.linux.amd64 b/docker/Dockerfile.controller.linux.amd64
-index 0a0953c9..ef6145f3 100644
+index 0a0953c9..67c3a799 100644
 --- a/docker/Dockerfile.controller.linux.amd64
 +++ b/docker/Dockerfile.controller.linux.amd64
 @@ -1,7 +1,7 @@
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.14 as alpine
++FROM alpine:3.16 as alpine
  RUN apk add -U --no-cache ca-certificates
  
 -FROM alpine:3.11
-+FROM alpine:3.14
++FROM alpine:3.16
  ENV GODEBUG netdns=go
  ENV DRONE_RUNNER_OS=linux
  ENV DRONE_RUNNER_ARCH=amd64
 diff --git a/docker/Dockerfile.controller.linux.arm b/docker/Dockerfile.controller.linux.arm
-index e5af6e16..c190d86f 100644
+index e5af6e16..83db41ea 100644
 --- a/docker/Dockerfile.controller.linux.arm
 +++ b/docker/Dockerfile.controller.linux.arm
 @@ -1,7 +1,7 @@
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.14 as alpine
++FROM alpine:3.16 as alpine
  RUN apk add -U --no-cache ca-certificates
  
 -FROM alpine:3.11
-+FROM alpine:3.14
++FROM alpine:3.16
  ENV GODEBUG=netdns=go
  ENV DRONE_RUNNER_OS=linux
  ENV DRONE_RUNNER_ARCH=arm
 diff --git a/docker/Dockerfile.controller.linux.arm64 b/docker/Dockerfile.controller.linux.arm64
-index d872c2dc..02d561b3 100644
+index d872c2dc..f39a5c2b 100644
 --- a/docker/Dockerfile.controller.linux.arm64
 +++ b/docker/Dockerfile.controller.linux.arm64
 @@ -1,7 +1,7 @@
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.14 as alpine
++FROM alpine:3.16 as alpine
  RUN apk add -U --no-cache ca-certificates
  
 -FROM alpine:3.11
-+FROM alpine:3.14
++FROM alpine:3.16
  ENV GODEBUG=netdns=go
  ENV DRONE_RUNNER_OS=linux
  ENV DRONE_RUNNER_ARCH=arm64
 diff --git a/docker/Dockerfile.server.linux.amd64 b/docker/Dockerfile.server.linux.amd64
-index 3e669ca1..0a2f537a 100644
+index 3e669ca1..803b9d3b 100644
 --- a/docker/Dockerfile.server.linux.amd64
 +++ b/docker/Dockerfile.server.linux.amd64
 @@ -1,9 +1,9 @@
  # docker build --rm -f docker/Dockerfile -t drone/drone .
  
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.14 as alpine
++FROM alpine:3.16 as alpine
  RUN apk add -U --no-cache ca-certificates
  
 -FROM alpine:3.11
-+FROM alpine:3.14
++FROM alpine:3.16
  EXPOSE 80 443
  VOLUME /data
  
 diff --git a/docker/Dockerfile.server.linux.arm b/docker/Dockerfile.server.linux.arm
-index 1b6ce60b..1238fe05 100644
+index 1b6ce60b..5839e1c1 100644
 --- a/docker/Dockerfile.server.linux.arm
 +++ b/docker/Dockerfile.server.linux.arm
 @@ -1,9 +1,9 @@
  # docker build --rm -f docker/Dockerfile -t drone/drone .
  
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.14 as alpine
++FROM alpine:3.16 as alpine
  RUN apk add -U --no-cache ca-certificates
  
 -FROM alpine:3.11
-+FROM alpine:3.14
++FROM alpine:3.16
  EXPOSE 80 443
  VOLUME /data
  
 diff --git a/docker/Dockerfile.server.linux.arm64 b/docker/Dockerfile.server.linux.arm64
-index b83678b1..0255effb 100644
+index b83678b1..b76ad494 100644
 --- a/docker/Dockerfile.server.linux.arm64
 +++ b/docker/Dockerfile.server.linux.arm64
 @@ -1,9 +1,9 @@
  # docker build --rm -f docker/Dockerfile -t drone/drone .
  
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.14 as alpine
++FROM alpine:3.16 as alpine
  RUN apk add -U --no-cache ca-certificates
  
 -FROM alpine:3.11
-+FROM alpine:3.14
++FROM alpine:3.16
  EXPOSE 80 443
  VOLUME /data
  
 -- 
-2.31.1
+2.36.1
 

@@ -6,6 +6,9 @@ platform:
   os: linux
   arch: amd64
 
+environment:
+  DRONE_VERSION: v2.12.1
+
 steps:
 - name: patch
   image: alpine
@@ -13,6 +16,7 @@ steps:
   commands:
   - apk --no-cache add git
   - git clone https://github.com/drone/drone.git
+  - git reset --hard ${DRONE_VERSION}
   - cd drone
   - git config user.name ${DRONE_COMMIT_AUTHOR:-drone}
   - git config user.email ${DRONE_COMMIT_AUTHOR_EMAIL:-builder@drone.spritsail.io}
@@ -24,20 +28,25 @@ steps:
   commands:
   - apk --no-cache add gcc libc-dev
   - cd drone
-  - go build -a -ldflags "-w -s -extldflags \"-static\"" -o ../release/linux/amd64/drone-server ./cmd/drone-server
+  - go build -a -ldflags "-w -s -extldflags \"-static\"" -o ../release/${DRONE_STAGE_OS}/${DRONE_STAGE_ARCH}/drone-server ./cmd/drone-server
 
 - name: build-docker
   pull: always
   image: spritsail/docker-build
   settings:
-    dockerfile: drone/docker/Dockerfile.server.linux.amd64
+    dockerfile: drone/docker/Dockerfile.server.${DRONE_STAGE_OS}.${DRONE_STAGE_ARCH}
+    repo: drone/spritsail/drone/${DRONE_BUILD_NUMBER}:${DRONE_STAGE_ARCH}
 
 - name: publish
   pull: always
   image: spritsail/docker-publish
   settings:
+    from: drone/spritsail/drone/${DRONE_BUILD_NUMBER}:${DRONE_STAGE_ARCH}
     repo: spritsail/drone
     login: {from_secret: docker_login}
+    tags:
+      - latest
+      - ${DRONE_VERSION}
   when:
     branch:
     - master

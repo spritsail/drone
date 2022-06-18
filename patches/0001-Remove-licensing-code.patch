@@ -1,0 +1,975 @@
+From d15f1178529e9796dc7a0d84252c64170e930fb4 Mon Sep 17 00:00:00 2001
+From: Joe Groocock <jgroocock@cloudflare.com>
+Date: Sat, 18 Jun 2022 08:34:12 +0000
+Subject: Remove licensing code
+
+Signed-off-by: Joe Groocock <jgroocock@cloudflare.com>
+---
+ cmd/drone-server/inject_license.go | 53 ------------------
+ cmd/drone-server/inject_service.go |  4 --
+ cmd/drone-server/wire_gen.go       |  9 +--
+ core/license.go                    | 75 -------------------------
+ core/license_test.go               |  7 ---
+ handler/api/api.go                 |  7 ---
+ handler/api/repos/enable.go        |  9 ---
+ handler/api/system/license.go      | 22 --------
+ handler/api/system/none.go         |  5 --
+ handler/api/users/create.go        |  6 --
+ handler/web/pages.go               | 17 +-----
+ handler/web/varz.go                | 24 +-------
+ handler/web/varz_test.go           | 17 +-----
+ handler/web/web.go                 | 10 +---
+ metric/license.go                  | 16 ------
+ metric/license_test.go             |  7 ---
+ metric/sink/config.go              |  3 -
+ metric/sink/datadog_test.go        | 12 ++--
+ metric/sink/tags.go                | 18 ------
+ service/license/load.go            | 89 ------------------------------
+ service/license/load_test.go       | 18 ------
+ service/license/nolimit.go         | 28 ----------
+ service/license/nolimit_oss.go     | 28 ----------
+ service/license/service.go         | 74 -------------------------
+ 24 files changed, 16 insertions(+), 542 deletions(-)
+ delete mode 100644 cmd/drone-server/inject_license.go
+ delete mode 100644 core/license.go
+ delete mode 100644 core/license_test.go
+ delete mode 100644 handler/api/system/license.go
+ delete mode 100644 metric/license.go
+ delete mode 100644 metric/license_test.go
+ delete mode 100644 service/license/load.go
+ delete mode 100644 service/license/load_test.go
+ delete mode 100644 service/license/nolimit.go
+ delete mode 100644 service/license/nolimit_oss.go
+ delete mode 100644 service/license/service.go
+
+diff --git a/cmd/drone-server/inject_license.go b/cmd/drone-server/inject_license.go
+deleted file mode 100644
+index 4a4bc2c5..00000000
+--- a/cmd/drone-server/inject_license.go
++++ /dev/null
+@@ -1,53 +0,0 @@
+-// Copyright 2019 Drone IO, Inc.
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//      http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
+-
+-package main
+-
+-import (
+-	"github.com/drone/drone/cmd/drone-server/config"
+-	"github.com/drone/drone/core"
+-	"github.com/drone/drone/service/license"
+-	"github.com/drone/go-scm/scm"
+-
+-	"github.com/google/wire"
+-	"github.com/sirupsen/logrus"
+-)
+-
+-// wire set for loading the license.
+-var licenseSet = wire.NewSet(
+-	provideLicense,
+-	license.NewService,
+-)
+-
+-// provideLicense is a Wire provider function that returns a
+-// license loaded from a license file.
+-func provideLicense(client *scm.Client, config config.Config) *core.License {
+-	l, err := license.Load(config.License)
+-	if config.License == "" {
+-		l = license.Trial(client.Driver.String())
+-	} else if err != nil {
+-		logrus.WithError(err).
+-			Fatalln("main: invalid or expired license")
+-	}
+-	logrus.WithFields(
+-		logrus.Fields{
+-			"kind":        l.Kind,
+-			"expires":     l.Expires,
+-			"repo.limit":  l.Repos,
+-			"user.limit":  l.Users,
+-			"build.limit": l.Builds,
+-		},
+-	).Debugln("main: license loaded")
+-	return l
+-}
+diff --git a/cmd/drone-server/inject_service.go b/cmd/drone-server/inject_service.go
+index 6a330223..1c376fc9 100644
+--- a/cmd/drone-server/inject_service.go
++++ b/cmd/drone-server/inject_service.go
+@@ -191,7 +191,6 @@ func provideDatadog(
+ 	repos core.RepositoryStore,
+ 	builds core.BuildStore,
+ 	system *core.System,
+-	license *core.License,
+ 	config config.Config,
+ ) *sink.Datadog {
+ 	return sink.New(
+@@ -202,9 +201,6 @@ func provideDatadog(
+ 		sink.Config{
+ 			Endpoint:        config.Datadog.Endpoint,
+ 			Token:           config.Datadog.Token,
+-			License:         license.Kind,
+-			Licensor:        license.Licensor,
+-			Subscription:    license.Subscription,
+ 			EnableGithub:    config.IsGitHub(),
+ 			EnableGithubEnt: config.IsGitHubEnterprise(),
+ 			EnableGitlab:    config.IsGitLab(),
+diff --git a/cmd/drone-server/wire_gen.go b/cmd/drone-server/wire_gen.go
+index 99e04df4..212ffab9 100644
+--- a/cmd/drone-server/wire_gen.go
++++ b/cmd/drone-server/wire_gen.go
+@@ -15,7 +15,6 @@ import (
+ 	"github.com/drone/drone/service/canceler"
+ 	"github.com/drone/drone/service/commit"
+ 	"github.com/drone/drone/service/hook/parser"
+-	"github.com/drone/drone/service/license"
+ 	"github.com/drone/drone/service/linker"
+ 	"github.com/drone/drone/service/token"
+ 	"github.com/drone/drone/service/transfer"
+@@ -76,8 +75,7 @@ func InitializeApplication(config2 config.Config) (application, error) {
+ 	triggerer := trigger.New(coreCanceler, configService, convertService, commitService, statusService, buildStore, scheduler, repositoryStore, userStore, validateService, webhookSender)
+ 	cronScheduler := cron2.New(commitService, cronStore, repositoryStore, userStore, triggerer)
+ 	reaper := provideReaper(repositoryStore, buildStore, stageStore, coreCanceler, config2)
+-	coreLicense := provideLicense(client, config2)
+-	datadog := provideDatadog(userStore, repositoryStore, buildStore, system, coreLicense, config2)
++	datadog := provideDatadog(userStore, repositoryStore, buildStore, system, config2)
+ 	cardStore := card.New(db)
+ 	logStore := provideLogStore(db, config2)
+ 	logStream := livelog.New(redisDB)
+@@ -89,7 +87,6 @@ func InitializeApplication(config2 config.Config) (application, error) {
+ 	registryService := provideRegistryPlugin(config2)
+ 	runner := provideRunner(buildManager, secretService, registryService, config2)
+ 	hookService := provideHookService(client, renewer, config2)
+-	licenseService := license.NewService(userStore, repositoryStore, buildStore, coreLicense)
+ 	organizationService := provideOrgService(client, renewer)
+ 	permStore := perm.New(db)
+ 	repositoryService := provideRepositoryService(client, renewer, config2)
+@@ -101,13 +98,13 @@ func InitializeApplication(config2 config.Config) (application, error) {
+ 	syncer := provideSyncer(repositoryService, repositoryStore, userStore, batcher, config2)
+ 	transferer := transfer.New(repositoryStore, permStore)
+ 	userService := user.New(client, renewer)
+-	server := api.New(buildStore, commitService, cardStore, cronStore, corePubsub, globalSecretStore, hookService, logStore, coreLicense, licenseService, organizationService, permStore, repositoryStore, repositoryService, scheduler, secretStore, stageStore, stepStore, statusService, session, logStream, syncer, system, templateStore, transferer, triggerer, userStore, userService, webhookSender)
++	server := api.New(buildStore, commitService, cardStore, cronStore, corePubsub, globalSecretStore, hookService, logStore, organizationService, permStore, repositoryStore, repositoryService, scheduler, secretStore, stageStore, stepStore, statusService, session, logStream, syncer, system, templateStore, transferer, triggerer, userStore, userService, webhookSender)
+ 	admissionService := provideAdmissionPlugin(client, organizationService, userService, config2)
+ 	hookParser := parser.New(client)
+ 	coreLinker := linker.New(client)
+ 	middleware := provideLogin(config2)
+ 	options := provideServerOptions(config2)
+-	webServer := web.New(admissionService, buildStore, client, hookParser, coreLicense, licenseService, coreLinker, middleware, repositoryStore, session, syncer, triggerer, userStore, userService, webhookSender, options, system)
++	webServer := web.New(admissionService, buildStore, client, hookParser, coreLinker, middleware, repositoryStore, session, syncer, triggerer, userStore, userService, webhookSender, options, system)
+ 	mainRpcHandlerV1 := provideRPC(buildManager, config2)
+ 	mainRpcHandlerV2 := provideRPC2(buildManager, config2)
+ 	mainHealthzHandler := provideHealthz()
+diff --git a/core/license.go b/core/license.go
+deleted file mode 100644
+index 0927cb83..00000000
+--- a/core/license.go
++++ /dev/null
+@@ -1,75 +0,0 @@
+-// Copyright 2019 Drone IO, Inc.
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//      http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
+-
+-package core
+-
+-import (
+-	"context"
+-	"errors"
+-	"time"
+-)
+-
+-// License types.
+-const (
+-	LicenseFoss     = "foss"
+-	LicenseFree     = "free"
+-	LicensePersonal = "personal"
+-	LicenseStandard = "standard"
+-	LicenseTrial    = "trial"
+-)
+-
+-// ErrUserLimit is returned when attempting to create a new
+-// user but the maximum number of allowed user accounts
+-// is exceeded.
+-var ErrUserLimit = errors.New("User limit exceeded")
+-
+-// ErrRepoLimit is returned when attempting to create a new
+-// repository but the maximum number of allowed repositories
+-// is exceeded.
+-var ErrRepoLimit = errors.New("Repository limit exceeded")
+-
+-// ErrBuildLimit is returned when attempting to create a new
+-// build but the maximum number of allowed builds is exceeded.
+-var ErrBuildLimit = errors.New("Build limit exceeded")
+-
+-type (
+-	// License defines software license parameters.
+-	License struct {
+-		Licensor     string    `json:"-"`
+-		Subscription string    `json:"-"`
+-		Expires      time.Time `json:"expires_at,omitempty"`
+-		Kind         string    `json:"kind,omitempty"`
+-		Repos        int64     `json:"repos,omitempty"`
+-		Users        int64     `json:"users,omitempty"`
+-		Builds       int64     `json:"builds,omitempty"`
+-		Nodes        int64     `json:"nodes,omitempty"`
+-	}
+-
+-	// LicenseService provides access to the license
+-	// service and can be used to check for violations
+-	// and expirations.
+-	LicenseService interface {
+-		// Exceeded returns true if the system has exceeded
+-		// its limits as defined in the license.
+-		Exceeded(context.Context) (bool, error)
+-
+-		// Expired returns true if the license is expired.
+-		Expired(context.Context) bool
+-	}
+-)
+-
+-// Expired returns true if the license is expired.
+-func (l *License) Expired() bool {
+-	return l.Expires.IsZero() == false && time.Now().After(l.Expires)
+-}
+diff --git a/core/license_test.go b/core/license_test.go
+deleted file mode 100644
+index 0912528b..00000000
+--- a/core/license_test.go
++++ /dev/null
+@@ -1,7 +0,0 @@
+-// Copyright 2019 Drone.IO Inc. All rights reserved.
+-// Use of this source code is governed by the Drone Non-Commercial License
+-// that can be found in the LICENSE file.
+-
+-// +build !oss
+-
+-package core
+diff --git a/handler/api/api.go b/handler/api/api.go
+index 000afce8..84388743 100644
+--- a/handler/api/api.go
++++ b/handler/api/api.go
+@@ -70,8 +70,6 @@ func New(
+ 	globals core.GlobalSecretStore,
+ 	hooks core.HookService,
+ 	logs core.LogStore,
+-	license *core.License,
+-	licenses core.LicenseService,
+ 	orgs core.OrganizationService,
+ 	perms core.PermStore,
+ 	repos core.RepositoryStore,
+@@ -101,8 +99,6 @@ func New(
+ 		Globals:    globals,
+ 		Hooks:      hooks,
+ 		Logs:       logs,
+-		License:    license,
+-		Licenses:   licenses,
+ 		Orgs:       orgs,
+ 		Perms:      perms,
+ 		Repos:      repos,
+@@ -135,8 +131,6 @@ type Server struct {
+ 	Globals    core.GlobalSecretStore
+ 	Hooks      core.HookService
+ 	Logs       core.LogStore
+-	License    *core.License
+-	Licenses   core.LicenseService
+ 	Orgs       core.OrganizationService
+ 	Perms      core.PermStore
+ 	Repos      core.RepositoryStore
+@@ -384,7 +378,6 @@ func (s Server) Handler() http.Handler {
+ 
+ 	r.Route("/system", func(r chi.Router) {
+ 		r.Use(acl.AuthorizeAdmin)
+-		// r.Get("/license", system.HandleLicense())
+ 		// r.Get("/limits", system.HandleLimits())
+ 		r.Get("/stats", system.HandleStats(
+ 			s.Builds,
+diff --git a/handler/api/repos/enable.go b/handler/api/repos/enable.go
+index 084e6402..0a7f8525 100644
+--- a/handler/api/repos/enable.go
++++ b/handler/api/repos/enable.go
+@@ -88,15 +88,6 @@ func HandleEnable(
+ 		}
+ 
+ 		err = repos.Activate(r.Context(), repo)
+-		if err == core.ErrRepoLimit {
+-			render.ErrorCode(w, err, 402)
+-			logger.FromRequest(r).
+-				WithError(err).
+-				WithField("namespace", owner).
+-				WithField("name", name).
+-				Errorln("api: cannot activate repository")
+-			return
+-		}
+ 		if err != nil {
+ 			render.InternalError(w, err)
+ 			logger.FromRequest(r).
+diff --git a/handler/api/system/license.go b/handler/api/system/license.go
+deleted file mode 100644
+index 01743c6f..00000000
+--- a/handler/api/system/license.go
++++ /dev/null
+@@ -1,22 +0,0 @@
+-// Copyright 2019 Drone.IO Inc. All rights reserved.
+-// Use of this source code is governed by the Drone Non-Commercial License
+-// that can be found in the LICENSE file.
+-
+-// +build !oss
+-
+-package system
+-
+-import (
+-	"net/http"
+-
+-	"github.com/drone/drone/core"
+-	"github.com/drone/drone/handler/api/render"
+-)
+-
+-// HandleLicense returns an http.HandlerFunc that writes
+-// json-encoded license details to the response body.
+-func HandleLicense(license core.License) http.HandlerFunc {
+-	return func(w http.ResponseWriter, r *http.Request) {
+-		render.JSON(w, license, 200)
+-	}
+-}
+diff --git a/handler/api/system/none.go b/handler/api/system/none.go
+index ebb1e094..0704e30c 100644
+--- a/handler/api/system/none.go
++++ b/handler/api/system/none.go
+@@ -27,11 +27,6 @@ var notImplemented = func(w http.ResponseWriter, r *http.Request) {
+ 	render.NotImplemented(w, render.ErrNotImplemented)
+ }
+ 
+-// HandleLicense returns a no-op http.HandlerFunc.
+-func HandleLicense(license core.License) http.HandlerFunc {
+-	return notImplemented
+-}
+-
+ // HandleStats returns a no-op http.HandlerFunc.
+ func HandleStats(
+ 	core.BuildStore,
+diff --git a/handler/api/users/create.go b/handler/api/users/create.go
+index 57568067..bc6facd4 100644
+--- a/handler/api/users/create.go
++++ b/handler/api/users/create.go
+@@ -82,12 +82,6 @@ func HandleCreate(users core.UserStore, service core.UserService, sender core.We
+ 		}
+ 
+ 		err = users.Create(r.Context(), user)
+-		if err == core.ErrUserLimit {
+-			render.ErrorCode(w, err, 402)
+-			logger.FromRequest(r).WithError(err).
+-				Errorln("api: cannot create user")
+-			return
+-		}
+ 		if err != nil {
+ 			render.InternalError(w, err)
+ 			logger.FromRequest(r).WithError(err).
+diff --git a/handler/web/pages.go b/handler/web/pages.go
+index 4bf347e4..4997f4c1 100644
+--- a/handler/web/pages.go
++++ b/handler/web/pages.go
+@@ -15,17 +15,17 @@
+ package web
+ 
+ import (
+-	"bytes"
+ 	"crypto/md5"
+ 	"fmt"
+ 	"net/http"
+ 	"time"
+ 
+ 	"github.com/drone/drone-ui/dist"
++
+ 	"github.com/drone/drone/core"
+ )
+ 
+-func HandleIndex(host string, session core.Session, license core.LicenseService) http.HandlerFunc {
++func HandleIndex(host string, session core.Session) http.HandlerFunc {
+ 	return func(rw http.ResponseWriter, r *http.Request) {
+ 		user, _ := session.Get(r)
+ 		if user == nil && r.URL.Path == "/" {
+@@ -34,24 +34,11 @@ func HandleIndex(host string, session core.Session, license core.LicenseService)
+ 		}
+ 
+ 		out := dist.MustLookup("/index.html")
+-		ctx := r.Context()
+-
+-		if ok, _ := license.Exceeded(ctx); ok {
+-			out = bytes.Replace(out, head, exceeded, -1)
+-		} else if license.Expired(ctx) {
+-			out = bytes.Replace(out, head, expired, -1)
+-		}
+ 		rw.Header().Set("Content-Type", "text/html; charset=UTF-8")
+ 		rw.Write(out)
+ 	}
+ }
+ 
+-var (
+-	head     = []byte(`<head>`)
+-	expired  = []byte(`<head><script>window.LICENSE_EXPIRED=true</script>`)
+-	exceeded = []byte(`<head><script>window.LICENSE_LIMIT_EXCEEDED=true</script>`)
+-)
+-
+ func setupCache(h http.Handler) http.Handler {
+ 	data := []byte(time.Now().String())
+ 	etag := fmt.Sprintf("%x", md5.Sum(data))
+diff --git a/handler/web/varz.go b/handler/web/varz.go
+index 6799bea0..a5a835b6 100644
+--- a/handler/web/varz.go
++++ b/handler/web/varz.go
+@@ -16,15 +16,12 @@ package web
+ 
+ import (
+ 	"net/http"
+-	"time"
+ 
+-	"github.com/drone/drone/core"
+ 	"github.com/drone/go-scm/scm"
+ )
+ 
+ type varz struct {
+-	SCM     *scmInfo     `json:"scm"`
+-	License *licenseInfo `json:"license"`
++	SCM *scmInfo `json:"scm"`
+ }
+ 
+ type scmInfo struct {
+@@ -38,29 +35,12 @@ type rateInfo struct {
+ 	Reset     int64 `json:"reset"`
+ }
+ 
+-type licenseInfo struct {
+-	Kind       string    `json:"kind"`
+-	Seats      int64     `json:"seats"`
+-	SeatsUsed  int64     `json:"seats_used,omitempty"`
+-	SeatsAvail int64     `json:"seats_available,omitempty"`
+-	Repos      int64     `json:"repos"`
+-	ReposUsed  int64     `json:"repos_used,omitempty"`
+-	ReposAvail int64     `json:"repos_available,omitempty"`
+-	Expires    time.Time `json:"expire_at,omitempty"`
+-}
+-
+ // HandleVarz creates an http.HandlerFunc that exposes internal system
+ // information.
+-func HandleVarz(client *scm.Client, license *core.License) http.HandlerFunc {
++func HandleVarz(client *scm.Client) http.HandlerFunc {
+ 	return func(w http.ResponseWriter, r *http.Request) {
+ 		rate := client.Rate()
+ 		v := &varz{
+-			License: &licenseInfo{
+-				Kind:    license.Kind,
+-				Seats:   license.Users,
+-				Repos:   license.Repos,
+-				Expires: license.Expires,
+-			},
+ 			SCM: &scmInfo{
+ 				URL: client.BaseURL.String(),
+ 				Rate: &rateInfo{
+diff --git a/handler/web/varz_test.go b/handler/web/varz_test.go
+index 345b8a0f..ae58060c 100644
+--- a/handler/web/varz_test.go
++++ b/handler/web/varz_test.go
+@@ -10,7 +10,6 @@ import (
+ 	"net/url"
+ 	"testing"
+ 
+-	"github.com/drone/drone/core"
+ 	"github.com/drone/go-scm/scm"
+ 	"github.com/google/go-cmp/cmp"
+ )
+@@ -27,12 +26,7 @@ func TestHandleVarz(t *testing.T) {
+ 		Reset:     1523640878,
+ 	})
+ 
+-	license := &core.License{
+-		Kind:  core.LicenseStandard,
+-		Repos: 50,
+-		Users: 100,
+-	}
+-	HandleVarz(client, license).ServeHTTP(w, r)
++	HandleVarz(client).ServeHTTP(w, r)
+ 
+ 	if got, want := w.Code, 200; want != got {
+ 		t.Errorf("Want response code %d, got %d", want, got)
+@@ -54,13 +48,4 @@ var mockVarz = &varz{
+ 			Reset:     1523640878,
+ 		},
+ 	},
+-	License: &licenseInfo{
+-		Kind:       "standard",
+-		Seats:      100,
+-		SeatsUsed:  0,
+-		SeatsAvail: 0,
+-		Repos:      50,
+-		ReposUsed:  0,
+-		ReposAvail: 0,
+-	},
+ }
+diff --git a/handler/web/web.go b/handler/web/web.go
+index c886f6d7..f4a9b834 100644
+--- a/handler/web/web.go
++++ b/handler/web/web.go
+@@ -35,8 +35,6 @@ func New(
+ 	builds core.BuildStore,
+ 	client *scm.Client,
+ 	hooks core.HookParser,
+-	license *core.License,
+-	licenses core.LicenseService,
+ 	linker core.Linker,
+ 	login login.Middleware,
+ 	repos core.RepositoryStore,
+@@ -54,8 +52,6 @@ func New(
+ 		Builds:    builds,
+ 		Client:    client,
+ 		Hooks:     hooks,
+-		License:   license,
+-		Licenses:  licenses,
+ 		Linker:    linker,
+ 		Login:     login,
+ 		Repos:     repos,
+@@ -76,8 +72,6 @@ type Server struct {
+ 	Builds    core.BuildStore
+ 	Client    *scm.Client
+ 	Hooks     core.HookParser
+-	License   *core.License
+-	Licenses  core.LicenseService
+ 	Linker    core.Linker
+ 	Login     login.Middleware
+ 	Repos     core.RepositoryStore
+@@ -110,7 +104,7 @@ func (s Server) Handler() http.Handler {
+ 	r.Get("/link/{namespace}/{name}/src/*", link.HandleTree(s.Linker))
+ 	r.Get("/link/{namespace}/{name}/commit/{commit}", link.HandleCommit(s.Linker))
+ 	r.Get("/version", HandleVersion)
+-	r.Get("/varz", HandleVarz(s.Client, s.License))
++	r.Get("/varz", HandleVarz(s.Client))
+ 
+ 	r.Handle("/login",
+ 		s.Login.Handler(
+@@ -135,7 +129,7 @@ func (s Server) Handler() http.Handler {
+ 	r.Handle("/manifest.json", h)
+ 	r.Handle("/asset-manifest.json", h)
+ 	r.Handle("/static/*filepath", h)
+-	r.NotFound(HandleIndex(s.Host, s.Session, s.Licenses))
++	r.NotFound(HandleIndex(s.Host, s.Session))
+ 
+ 	return r
+ }
+diff --git a/metric/license.go b/metric/license.go
+deleted file mode 100644
+index a7b0e692..00000000
+--- a/metric/license.go
++++ /dev/null
+@@ -1,16 +0,0 @@
+-// Copyright 2019 Drone.IO Inc. All rights reserved.
+-// Use of this source code is governed by the Drone Non-Commercial License
+-// that can be found in the LICENSE file.
+-
+-// +build !oss
+-
+-package metric
+-
+-import "github.com/drone/drone/core"
+-
+-// License registers the license metrics.
+-func License(license core.LicenseService) {
+-	// track days until expires
+-	// track user limit
+-	// track repo limit
+-}
+diff --git a/metric/license_test.go b/metric/license_test.go
+deleted file mode 100644
+index 66b058b4..00000000
+--- a/metric/license_test.go
++++ /dev/null
+@@ -1,7 +0,0 @@
+-// Copyright 2019 Drone.IO Inc. All rights reserved.
+-// Use of this source code is governed by the Drone Non-Commercial License
+-// that can be found in the LICENSE file.
+-
+-// +build !oss
+-
+-package metric
+diff --git a/metric/sink/config.go b/metric/sink/config.go
+index 49b4dea5..86a40323 100644
+--- a/metric/sink/config.go
++++ b/metric/sink/config.go
+@@ -19,9 +19,6 @@ type Config struct {
+ 	Endpoint string
+ 	Token    string
+ 
+-	License         string
+-	Licensor        string
+-	Subscription    string
+ 	EnableGithub    bool
+ 	EnableGithubEnt bool
+ 	EnableGitlab    bool
+diff --git a/metric/sink/datadog_test.go b/metric/sink/datadog_test.go
+index e6c5fa1b..6e99db8a 100644
+--- a/metric/sink/datadog_test.go
++++ b/metric/sink/datadog_test.go
+@@ -18,11 +18,12 @@ import (
+ 	"context"
+ 	"testing"
+ 
++	"github.com/golang/mock/gomock"
++	"github.com/h2non/gock"
++
+ 	"github.com/drone/drone/core"
+ 	"github.com/drone/drone/mock"
+ 	"github.com/drone/drone/version"
+-	"github.com/golang/mock/gomock"
+-	"github.com/h2non/gock"
+ )
+ 
+ var noContext = context.Background()
+@@ -57,7 +58,6 @@ func TestDo(t *testing.T) {
+ 	d.repos = repos
+ 	d.builds = builds
+ 	d.system.Host = "test.example.com"
+-	d.config.License = "trial"
+ 	d.config.EnableGithub = true
+ 	d.config.EnableAgents = true
+ 	d.config.Endpoint = "https://api.datadoghq.com/api/v1/series"
+@@ -75,21 +75,21 @@ var sample = `{
+ 			"points": [[915148800, 10]],
+ 			"type": "gauge",
+ 			"host": "test.example.com",
+-			"tags": ["version:` + version.Version.String() + `","remote:github:cloud","scheduler:internal:agents","license:trial","installer:jane@acme.com","installed:2009-11-10T23:00:00Z"]
++			"tags": ["version:` + version.Version.String() + `","remote:github:cloud","scheduler:internal:agents","installer:jane@acme.com","installed:2009-11-10T23:00:00Z"]
+ 		},
+ 		{
+ 			"metric": "drone.repos",
+ 			"points": [[915148800, 20]],
+ 			"type": "gauge",
+ 			"host": "test.example.com",
+-			"tags": ["version:` + version.Version.String() + `","remote:github:cloud","scheduler:internal:agents","license:trial"]
++			"tags": ["version:` + version.Version.String() + `","remote:github:cloud","scheduler:internal:agents"]
+ 		},
+ 		{
+ 			"metric": "drone.builds",
+ 			"points": [[915148800, 30]],
+ 			"type": "gauge",
+ 			"host": "test.example.com",
+-			"tags": ["version:` + version.Version.String() + `","remote:github:cloud","scheduler:internal:agents","license:trial"]
++			"tags": ["version:` + version.Version.String() + `","remote:github:cloud","scheduler:internal:agents"]
+ 		}
+     ]
+ }`
+diff --git a/metric/sink/tags.go b/metric/sink/tags.go
+index 06d89c70..b5e55019 100644
+--- a/metric/sink/tags.go
++++ b/metric/sink/tags.go
+@@ -54,24 +54,6 @@ func createTags(config Config) []string {
+ 	default:
+ 		tags = append(tags, "scheduler:internal:local")
+ 	}
+-
+-	if config.Subscription != "" {
+-		tag := fmt.Sprintf("license:%s:%s:%s",
+-			config.License,
+-			config.Licensor,
+-			config.Subscription,
+-		)
+-		tags = append(tags, tag)
+-	} else if config.Licensor != "" {
+-		tag := fmt.Sprintf("license:%s:%s",
+-			config.License,
+-			config.Licensor,
+-		)
+-		tags = append(tags, tag)
+-	} else {
+-		tag := fmt.Sprintf("license:%s", config.License)
+-		tags = append(tags, tag)
+-	}
+ 	return tags
+ }
+ 
+diff --git a/service/license/load.go b/service/license/load.go
+deleted file mode 100644
+index 8163dd31..00000000
+--- a/service/license/load.go
++++ /dev/null
+@@ -1,89 +0,0 @@
+-// Copyright 2019 Drone IO, Inc.
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//      http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
+-
+-// +build !nolimit
+-// +build !oss
+-
+-package license
+-
+-import (
+-	"encoding/json"
+-	"strings"
+-
+-	"github.com/drone/drone/core"
+-	"github.com/drone/go-license/license"
+-	"github.com/drone/go-license/license/licenseutil"
+-)
+-
+-// embedded public key used to verify license signatures.
+-var publicKey = []byte("GB/hFnXEg63vDZ2W6mKFhLxZTuxMrlN/C/0iVZ2LfPQ=")
+-
+-// License renewal endpoint.
+-const licenseEndpoint = "https://license.drone.io/api/v1/license/renew"
+-
+-// Trial returns a default license with trial terms based
+-// on the source code management system.
+-func Trial(provider string) *core.License {
+-	switch provider {
+-	case "gitea", "gogs":
+-		return &core.License{
+-			Kind:   core.LicenseTrial,
+-			Repos:  0,
+-			Users:  0,
+-			Builds: 0,
+-			Nodes:  0,
+-		}
+-	default:
+-		return &core.License{
+-			Kind:   core.LicenseTrial,
+-			Repos:  0,
+-			Users:  0,
+-			Builds: 5000,
+-			Nodes:  0,
+-		}
+-	}
+-}
+-
+-// Load loads the license from file.
+-func Load(path string) (*core.License, error) {
+-	pub, err := licenseutil.DecodePublicKey(publicKey)
+-	if err != nil {
+-		return nil, err
+-	}
+-
+-	var decoded *license.License
+-	if strings.HasPrefix(path, "-----BEGIN LICENSE KEY-----") {
+-		decoded, err = license.Decode([]byte(path), pub)
+-	} else {
+-		decoded, err = license.DecodeFile(path, pub)
+-	}
+-
+-	if err != nil {
+-		return nil, err
+-	}
+-
+-	license := new(core.License)
+-	license.Expires = decoded.Exp
+-	license.Licensor = decoded.Cus
+-	license.Subscription = decoded.Sub
+-	license.Users = int64(decoded.Lim)
+-
+-	if decoded.Dat != nil {
+-		dat := new(core.License)
+-		json.Unmarshal(decoded.Dat, dat)
+-		license.Repos = dat.Repos
+-	}
+-
+-	return license, err
+-}
+diff --git a/service/license/load_test.go b/service/license/load_test.go
+deleted file mode 100644
+index 27b50732..00000000
+--- a/service/license/load_test.go
++++ /dev/null
+@@ -1,18 +0,0 @@
+-// Copyright 2019 Drone IO, Inc.
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//      http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
+-
+-// +build !nolimit
+-// +build !oss
+-
+-package license
+diff --git a/service/license/nolimit.go b/service/license/nolimit.go
+deleted file mode 100644
+index 631ce1dc..00000000
+--- a/service/license/nolimit.go
++++ /dev/null
+@@ -1,28 +0,0 @@
+-// Copyright 2019 Drone IO, Inc.
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//      http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
+-
+-// +build nolimit
+-// +build !oss
+-
+-package license
+-
+-import (
+-	"github.com/drone/drone/core"
+-)
+-
+-// DefaultLicense is an empty license with no restrictions.
+-var DefaultLicense = &core.License{Kind: core.LicenseFree}
+-
+-func Trial(string) *core.License         { return DefaultLicense }
+-func Load(string) (*core.License, error) { return DefaultLicense, nil }
+diff --git a/service/license/nolimit_oss.go b/service/license/nolimit_oss.go
+deleted file mode 100644
+index a118caf0..00000000
+--- a/service/license/nolimit_oss.go
++++ /dev/null
+@@ -1,28 +0,0 @@
+-// Copyright 2019 Drone IO, Inc.
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//      http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
+-
+-// +build nolimit
+-// +build oss
+-
+-package license
+-
+-import (
+-	"github.com/drone/drone/core"
+-)
+-
+-// DefaultLicense is an empty license with no restrictions.
+-var DefaultLicense = &core.License{Kind: core.LicenseFoss}
+-
+-func Trial(string) *core.License         { return DefaultLicense }
+-func Load(string) (*core.License, error) { return DefaultLicense, nil }
+diff --git a/service/license/service.go b/service/license/service.go
+deleted file mode 100644
+index ca4fa001..00000000
+--- a/service/license/service.go
++++ /dev/null
+@@ -1,74 +0,0 @@
+-// Copyright 2019 Drone IO, Inc.
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//      http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
+-
+-package license
+-
+-import (
+-	"context"
+-	"time"
+-
+-	"github.com/drone/drone/core"
+-)
+-
+-// NewService returns a new License service.
+-func NewService(
+-	users core.UserStore,
+-	repos core.RepositoryStore,
+-	builds core.BuildStore,
+-	license *core.License,
+-) core.LicenseService {
+-	return &service{
+-		users:   users,
+-		repos:   repos,
+-		builds:  builds,
+-		license: license,
+-	}
+-}
+-
+-type service struct {
+-	users   core.UserStore
+-	repos   core.RepositoryStore
+-	builds  core.BuildStore
+-	license *core.License
+-}
+-
+-func (s *service) Exceeded(ctx context.Context) (bool, error) {
+-	if limit := s.license.Builds; limit > 0 {
+-		count, _ := s.builds.Count(ctx)
+-		if count > limit {
+-			return true, core.ErrBuildLimit
+-		}
+-	}
+-	if limit := s.license.Users; limit > 0 {
+-		count, _ := s.users.Count(ctx)
+-		if count > limit {
+-			return true, core.ErrUserLimit
+-		}
+-	}
+-	if limit := s.license.Repos; limit > 0 {
+-		count, _ := s.repos.Count(ctx)
+-		if count > limit {
+-			return true, core.ErrRepoLimit
+-		}
+-	}
+-	return false, nil
+-}
+-
+-func (s *service) Expired(ctx context.Context) bool {
+-	return s.license.Expired()
+-}
+-
+-func (s *service) Expires(ctx context.Context) time.Time {
+-	return s.license.Expires
+-}
+-- 
+2.36.1
+
