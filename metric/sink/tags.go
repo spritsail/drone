@@ -54,24 +54,6 @@ func createTags(config Config) []string {
 	default:
 		tags = append(tags, "scheduler:internal:local")
 	}
-
-	if config.Subscription != "" {
-		tag := fmt.Sprintf("license:%s:%s:%s",
-			config.License,
-			config.Licensor,
-			config.Subscription,
-		)
-		tags = append(tags, tag)
-	} else if config.Licensor != "" {
-		tag := fmt.Sprintf("license:%s:%s",
-			config.License,
-			config.Licensor,
-		)
-		tags = append(tags, tag)
-	} else {
-		tag := fmt.Sprintf("license:%s", config.License)
-		tags = append(tags, tag)
-	}
 	return tags
 }
 

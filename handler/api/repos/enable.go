@@ -88,15 +88,6 @@ func HandleEnable(
 		}
 
 		err = repos.Activate(r.Context(), repo)
-		if err == core.ErrRepoLimit {
-			render.ErrorCode(w, err, 402)
-			logger.FromRequest(r).
-				WithError(err).
-				WithField("namespace", owner).
-				WithField("name", name).
-				Errorln("api: cannot activate repository")
-			return
-		}
 		if err != nil {
 			render.InternalError(w, err)
 			logger.FromRequest(r).

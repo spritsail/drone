@@ -10,7 +10,6 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/drone/drone/core"
 	"github.com/drone/go-scm/scm"
 	"github.com/google/go-cmp/cmp"
 )
@@ -27,12 +26,7 @@ func TestHandleVarz(t *testing.T) {
 		Reset:     1523640878,
 	})
 
-	license := &core.License{
-		Kind:  core.LicenseStandard,
-		Repos: 50,
-		Users: 100,
-	}
-	HandleVarz(client, license).ServeHTTP(w, r)
+	HandleVarz(client).ServeHTTP(w, r)
 
 	if got, want := w.Code, 200; want != got {
 		t.Errorf("Want response code %d, got %d", want, got)
@@ -53,14 +47,5 @@ var mockVarz = &varz{
 			Remaining: 875,
 			Reset:     1523640878,
 		},
-	},
-	License: &licenseInfo{
-		Kind:       "standard",
-		Seats:      100,
-		SeatsUsed:  0,
-		SeatsAvail: 0,
-		Repos:      50,
-		ReposUsed:  0,
-		ReposAvail: 0,
 	},
 }

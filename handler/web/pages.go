@@ -15,17 +15,17 @@
 package web
 
 import (
-	"bytes"
 	"crypto/md5"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/drone/drone-ui/dist"
+
 	"github.com/drone/drone/core"
 )
 
-func HandleIndex(host string, session core.Session, license core.LicenseService) http.HandlerFunc {
+func HandleIndex(host string, session core.Session) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		user, _ := session.Get(r)
 		if user == nil && r.URL.Path == "/" {
@@ -34,23 +34,10 @@ func HandleIndex(host string, session core.Session, license core.LicenseService)
 		}
 
 		out := dist.MustLookup("/index.html")
-		ctx := r.Context()
-
-		if ok, _ := license.Exceeded(ctx); ok {
-			out = bytes.Replace(out, head, exceeded, -1)
-		} else if license.Expired(ctx) {
-			out = bytes.Replace(out, head, expired, -1)
-		}
 		rw.Header().Set("Content-Type", "text/html; charset=UTF-8")
 		rw.Write(out)
 	}
 }
-
-var (
-	head     = []byte(`<head>`)
-	expired  = []byte(`<head><script>window.LICENSE_EXPIRED=true</script>`)
-	exceeded = []byte(`<head><script>window.LICENSE_LIMIT_EXCEEDED=true</script>`)
-)
 
 func setupCache(h http.Handler) http.Handler {
 	data := []byte(time.Now().String())

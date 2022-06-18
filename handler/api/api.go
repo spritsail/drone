@@ -70,8 +70,6 @@ func New(
 	globals core.GlobalSecretStore,
 	hooks core.HookService,
 	logs core.LogStore,
-	license *core.License,
-	licenses core.LicenseService,
 	orgs core.OrganizationService,
 	perms core.PermStore,
 	repos core.RepositoryStore,
@@ -101,8 +99,6 @@ func New(
 		Globals:    globals,
 		Hooks:      hooks,
 		Logs:       logs,
-		License:    license,
-		Licenses:   licenses,
 		Orgs:       orgs,
 		Perms:      perms,
 		Repos:      repos,
@@ -135,8 +131,6 @@ type Server struct {
 	Globals    core.GlobalSecretStore
 	Hooks      core.HookService
 	Logs       core.LogStore
-	License    *core.License
-	Licenses   core.LicenseService
 	Orgs       core.OrganizationService
 	Perms      core.PermStore
 	Repos      core.RepositoryStore
@@ -389,7 +383,6 @@ func (s Server) Handler() http.Handler {
 
 	r.Route("/system", func(r chi.Router) {
 		r.Use(acl.AuthorizeAdmin)
-		// r.Get("/license", system.HandleLicense())
 		// r.Get("/limits", system.HandleLimits())
 		r.Get("/stats", system.HandleStats(
 			s.Builds,

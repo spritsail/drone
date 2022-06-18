@@ -18,11 +18,12 @@ import (
 	"context"
 	"testing"
 
+	"github.com/golang/mock/gomock"
+	"github.com/h2non/gock"
+
 	"github.com/drone/drone/core"
 	"github.com/drone/drone/mock"
 	"github.com/drone/drone/version"
-	"github.com/golang/mock/gomock"
-	"github.com/h2non/gock"
 )
 
 var noContext = context.Background()
@@ -57,7 +58,6 @@ func TestDo(t *testing.T) {
 	d.repos = repos
 	d.builds = builds
 	d.system.Host = "test.example.com"
-	d.config.License = "trial"
 	d.config.EnableGithub = true
 	d.config.EnableAgents = true
 	d.config.Endpoint = "https://api.datadoghq.com/api/v1/series"
@@ -75,21 +75,21 @@ var sample = `{
 			"points": [[915148800, 10]],
 			"type": "gauge",
 			"host": "test.example.com",
-			"tags": ["version:` + version.Version.String() + `","remote:github:cloud","scheduler:internal:agents","license:trial","installer:jane@acme.com","installed:2009-11-10T23:00:00Z"]
+			"tags": ["version:` + version.Version.String() + `","remote:github:cloud","scheduler:internal:agents","installer:jane@acme.com","installed:2009-11-10T23:00:00Z"]
 		},
 		{
 			"metric": "drone.repos",
 			"points": [[915148800, 20]],
 			"type": "gauge",
 			"host": "test.example.com",
-			"tags": ["version:` + version.Version.String() + `","remote:github:cloud","scheduler:internal:agents","license:trial"]
+			"tags": ["version:` + version.Version.String() + `","remote:github:cloud","scheduler:internal:agents"]
 		},
 		{
 			"metric": "drone.builds",
 			"points": [[915148800, 30]],
 			"type": "gauge",
 			"host": "test.example.com",
-			"tags": ["version:` + version.Version.String() + `","remote:github:cloud","scheduler:internal:agents","license:trial"]
+			"tags": ["version:` + version.Version.String() + `","remote:github:cloud","scheduler:internal:agents"]
 		}
     ]
 }`

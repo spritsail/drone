@@ -82,12 +82,6 @@ func HandleCreate(users core.UserStore, service core.UserService, sender core.We
 		}
 
 		err = users.Create(r.Context(), user)
-		if err == core.ErrUserLimit {
-			render.ErrorCode(w, err, 402)
-			logger.FromRequest(r).WithError(err).
-				Errorln("api: cannot create user")
-			return
-		}
 		if err != nil {
 			render.InternalError(w, err)
 			logger.FromRequest(r).WithError(err).

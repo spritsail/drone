@@ -19,9 +19,6 @@ type Config struct {
 	Endpoint string
 	Token    string
 
-	License         string
-	Licensor        string
-	Subscription    string
 	EnableGithub    bool
 	EnableGithubEnt bool
 	EnableGitlab    bool

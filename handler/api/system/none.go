@@ -27,11 +27,6 @@ var notImplemented = func(w http.ResponseWriter, r *http.Request) {
 	render.NotImplemented(w, render.ErrNotImplemented)
 }
 
-// HandleLicense returns a no-op http.HandlerFunc.
-func HandleLicense(license core.License) http.HandlerFunc {
-	return notImplemented
-}
-
 // HandleStats returns a no-op http.HandlerFunc.
 func HandleStats(
 	core.BuildStore,

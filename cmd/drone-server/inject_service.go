@@ -192,7 +192,6 @@ func provideDatadog(
 	repos core.RepositoryStore,
 	builds core.BuildStore,
 	system *core.System,
-	license *core.License,
 	config config.Config,
 ) *sink.Datadog {
 	return sink.New(
@@ -203,9 +202,6 @@ func provideDatadog(
 		sink.Config{
 			Endpoint:        config.Datadog.Endpoint,
 			Token:           config.Datadog.Token,
-			License:         license.Kind,
-			Licensor:        license.Licensor,
-			Subscription:    license.Subscription,
 			EnableGithub:    config.IsGitHub(),
 			EnableGithubEnt: config.IsGitHubEnterprise(),
 			EnableGitlab:    config.IsGitLab(),

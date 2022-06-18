@@ -35,8 +35,6 @@ func New(
 	builds core.BuildStore,
 	client *scm.Client,
 	hooks core.HookParser,
-	license *core.License,
-	licenses core.LicenseService,
 	linker core.Linker,
 	login login.Middleware,
 	repos core.RepositoryStore,
@@ -54,8 +52,6 @@ func New(
 		Builds:    builds,
 		Client:    client,
 		Hooks:     hooks,
-		License:   license,
-		Licenses:  licenses,
 		Linker:    linker,
 		Login:     login,
 		Repos:     repos,
@@ -76,8 +72,6 @@ type Server struct {
 	Builds    core.BuildStore
 	Client    *scm.Client
 	Hooks     core.HookParser
-	License   *core.License
-	Licenses  core.LicenseService
 	Linker    core.Linker
 	Login     login.Middleware
 	Repos     core.RepositoryStore
@@ -110,7 +104,7 @@ func (s Server) Handler() http.Handler {
 	r.Get("/link/{namespace}/{name}/src/*", link.HandleTree(s.Linker))
 	r.Get("/link/{namespace}/{name}/commit/{commit}", link.HandleCommit(s.Linker))
 	r.Get("/version", HandleVersion)
-	r.Get("/varz", HandleVarz(s.Client, s.License))
+	r.Get("/varz", HandleVarz(s.Client))
 
 	r.Handle("/login",
 		s.Login.Handler(
@@ -135,7 +129,7 @@ func (s Server) Handler() http.Handler {
 	r.Handle("/manifest.json", h)
 	r.Handle("/asset-manifest.json", h)
 	r.Handle("/static/*filepath", h)
-	r.NotFound(HandleIndex(s.Host, s.Session, s.Licenses))
+	r.NotFound(HandleIndex(s.Host, s.Session))
 
 	return r
 }
