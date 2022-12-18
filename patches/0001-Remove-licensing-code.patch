@@ -1,4 +1,4 @@
-From d15f1178529e9796dc7a0d84252c64170e930fb4 Mon Sep 17 00:00:00 2001
+From a2ed1f723461de2801fa2f1c392577d11ccb74a0 Mon Sep 17 00:00:00 2001
 From: Joe Groocock <jgroocock@cloudflare.com>
 Date: Sat, 18 Jun 2022 08:34:12 +0000
 Subject: Remove licensing code
@@ -264,7 +264,7 @@ index 0912528b..00000000
 -
 -package core
 diff --git a/handler/api/api.go b/handler/api/api.go
-index 000afce8..84388743 100644
+index a2c7d800..9ead91ac 100644
 --- a/handler/api/api.go
 +++ b/handler/api/api.go
 @@ -70,8 +70,6 @@ func New(
@@ -294,7 +294,7 @@ index 000afce8..84388743 100644
  	Orgs       core.OrganizationService
  	Perms      core.PermStore
  	Repos      core.RepositoryStore
-@@ -384,7 +378,6 @@ func (s Server) Handler() http.Handler {
+@@ -385,7 +379,6 @@ func (s Server) Handler() http.Handler {
  
  	r.Route("/system", func(r chi.Router) {
  		r.Use(acl.AuthorizeAdmin)
@@ -971,5 +971,5 @@ index ca4fa001..00000000
 -	return s.license.Expires
 -}
 -- 
-2.36.1
+2.39.0
 

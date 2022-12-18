@@ -1,4 +1,4 @@
-From 54ebeeb408836c78617fdeb9d7162a985e53bfb9 Mon Sep 17 00:00:00 2001
+From 4b6978f94e68ab51f0b5d91c79489c3367f7d7fb Mon Sep 17 00:00:00 2001
 From: Joe Groocock <me@frebib.net>
 Date: Fri, 14 May 2021 08:49:59 +0100
 Subject: Disable Datadog in Drone server
@@ -11,7 +11,7 @@ Signed-off-by: Joe Groocock <me@frebib.net>
  3 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/docker/Dockerfile.server.linux.amd64 b/docker/Dockerfile.server.linux.amd64
-index 803b9d3b..e9973103 100644
+index f9711b88..98cbf0a9 100644
 --- a/docker/Dockerfile.server.linux.amd64
 +++ b/docker/Dockerfile.server.linux.amd64
 @@ -17,7 +17,7 @@ ENV DRONE_RUNNER_OS=linux
@@ -24,7 +24,7 @@ index 803b9d3b..e9973103 100644
  
  COPY --from=alpine /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 diff --git a/docker/Dockerfile.server.linux.arm b/docker/Dockerfile.server.linux.arm
-index 5839e1c1..42a00184 100644
+index a1c3f48b..5c643221 100644
 --- a/docker/Dockerfile.server.linux.arm
 +++ b/docker/Dockerfile.server.linux.arm
 @@ -17,7 +17,7 @@ ENV DRONE_RUNNER_OS=linux
@@ -37,7 +37,7 @@ index 5839e1c1..42a00184 100644
  
  COPY --from=alpine /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 diff --git a/docker/Dockerfile.server.linux.arm64 b/docker/Dockerfile.server.linux.arm64
-index b76ad494..040694ec 100644
+index 12cae753..d9fbffcb 100644
 --- a/docker/Dockerfile.server.linux.arm64
 +++ b/docker/Dockerfile.server.linux.arm64
 @@ -17,7 +17,7 @@ ENV DRONE_RUNNER_OS=linux
@@ -50,5 +50,5 @@ index b76ad494..040694ec 100644
  
  COPY --from=alpine /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 -- 
-2.36.1
+2.39.0
 

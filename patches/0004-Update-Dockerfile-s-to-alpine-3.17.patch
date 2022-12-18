@@ -1,123 +1,147 @@
-From f7da8e9e1b486ddaf7946d6c16877a212fd3d772 Mon Sep 17 00:00:00 2001
+From f3310e0753712e370c1011d6ea8008ebab86c9cd Mon Sep 17 00:00:00 2001
 From: Joe Groocock <me@frebib.net>
 Date: Sat, 18 Jun 2022 08:41:02 +0000
-Subject: Update Dockerfile(s) to alpine:3.16
+Subject: Update Dockerfile(s) to alpine:3.17
 
 Signed-off-by: Joe Groocock <me@frebib.net>
 ---
- docker/Dockerfile.agent.linux.amd64      | 4 ++--
+ docker/Dockerfile.agent.linux.amd64      | 6 +++---
  docker/Dockerfile.controller.linux.amd64 | 4 ++--
  docker/Dockerfile.controller.linux.arm   | 4 ++--
  docker/Dockerfile.controller.linux.arm64 | 4 ++--
- docker/Dockerfile.server.linux.amd64     | 4 ++--
- docker/Dockerfile.server.linux.arm       | 4 ++--
- docker/Dockerfile.server.linux.arm64     | 4 ++--
- 7 files changed, 14 insertions(+), 14 deletions(-)
+ docker/Dockerfile.server.linux.amd64     | 6 +++---
+ docker/Dockerfile.server.linux.arm       | 6 +++---
+ docker/Dockerfile.server.linux.arm64     | 6 +++---
+ 7 files changed, 18 insertions(+), 18 deletions(-)
 
 diff --git a/docker/Dockerfile.agent.linux.amd64 b/docker/Dockerfile.agent.linux.amd64
-index 3dd9362d..44083d5f 100644
+index bb9899a8..8f9ab16c 100644
 --- a/docker/Dockerfile.agent.linux.amd64
 +++ b/docker/Dockerfile.agent.linux.amd64
 @@ -1,7 +1,7 @@
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.16 as alpine
- RUN apk add -U --no-cache ca-certificates
++FROM alpine:3.17 as alpine
+ RUN apk add -U --no-cache ca-certificates tzdata
  
 -FROM alpine:3.11
-+FROM alpine:3.16
++FROM alpine:3.17
  ENV GODEBUG netdns=go
  ENV DRONE_RUNNER_OS=linux
  ENV DRONE_RUNNER_ARCH=amd64
+@@ -9,7 +9,7 @@ ENV DRONE_RUNNER_PLATFORM=linux/amd64
+ ENV DRONE_RUNNER_CAPACITY=1
+ ADD release/linux/amd64/drone-agent /bin/
+ 
+-RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
++RUN test -e /etc/nsswitch.conf || echo 'hosts: files dns' > /etc/nsswitch.conf
+ 
+ COPY --from=alpine /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+ COPY --from=alpine /usr/share/zoneinfo /usr/share/zoneinfo
 diff --git a/docker/Dockerfile.controller.linux.amd64 b/docker/Dockerfile.controller.linux.amd64
-index 0a0953c9..67c3a799 100644
+index 8161dc2c..f30c5cdf 100644
 --- a/docker/Dockerfile.controller.linux.amd64
 +++ b/docker/Dockerfile.controller.linux.amd64
 @@ -1,7 +1,7 @@
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.16 as alpine
- RUN apk add -U --no-cache ca-certificates
++FROM alpine:3.17 as alpine
+ RUN apk add -U --no-cache ca-certificates tzdata
  
 -FROM alpine:3.11
-+FROM alpine:3.16
++FROM alpine:3.17
  ENV GODEBUG netdns=go
  ENV DRONE_RUNNER_OS=linux
  ENV DRONE_RUNNER_ARCH=amd64
 diff --git a/docker/Dockerfile.controller.linux.arm b/docker/Dockerfile.controller.linux.arm
-index e5af6e16..83db41ea 100644
+index be509125..3894ae36 100644
 --- a/docker/Dockerfile.controller.linux.arm
 +++ b/docker/Dockerfile.controller.linux.arm
 @@ -1,7 +1,7 @@
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.16 as alpine
- RUN apk add -U --no-cache ca-certificates
++FROM alpine:3.17 as alpine
+ RUN apk add -U --no-cache ca-certificates tzdata
  
 -FROM alpine:3.11
-+FROM alpine:3.16
++FROM alpine:3.17
  ENV GODEBUG=netdns=go
  ENV DRONE_RUNNER_OS=linux
  ENV DRONE_RUNNER_ARCH=arm
 diff --git a/docker/Dockerfile.controller.linux.arm64 b/docker/Dockerfile.controller.linux.arm64
-index d872c2dc..f39a5c2b 100644
+index 54a1ca02..951de3e6 100644
 --- a/docker/Dockerfile.controller.linux.arm64
 +++ b/docker/Dockerfile.controller.linux.arm64
 @@ -1,7 +1,7 @@
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.16 as alpine
- RUN apk add -U --no-cache ca-certificates
++FROM alpine:3.17 as alpine
+ RUN apk add -U --no-cache ca-certificates tzdata
  
 -FROM alpine:3.11
-+FROM alpine:3.16
++FROM alpine:3.17
  ENV GODEBUG=netdns=go
  ENV DRONE_RUNNER_OS=linux
  ENV DRONE_RUNNER_ARCH=arm64
 diff --git a/docker/Dockerfile.server.linux.amd64 b/docker/Dockerfile.server.linux.amd64
-index 3e669ca1..803b9d3b 100644
+index 1f4d604b..f9711b88 100644
 --- a/docker/Dockerfile.server.linux.amd64
 +++ b/docker/Dockerfile.server.linux.amd64
-@@ -1,9 +1,9 @@
+@@ -1,13 +1,13 @@
  # docker build --rm -f docker/Dockerfile -t drone/drone .
  
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.16 as alpine
- RUN apk add -U --no-cache ca-certificates
++FROM alpine:3.17 as alpine
+ RUN apk add -U --no-cache ca-certificates tzdata
  
 -FROM alpine:3.11
-+FROM alpine:3.16
++FROM alpine:3.17
  EXPOSE 80 443
  VOLUME /data
  
+-RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
++RUN test -e /etc/nsswitch.conf || echo 'hosts: files dns' > /etc/nsswitch.conf
+ 
+ ENV GODEBUG netdns=go
+ ENV XDG_CACHE_HOME /data
 diff --git a/docker/Dockerfile.server.linux.arm b/docker/Dockerfile.server.linux.arm
-index 1b6ce60b..5839e1c1 100644
+index 3f803d15..a1c3f48b 100644
 --- a/docker/Dockerfile.server.linux.arm
 +++ b/docker/Dockerfile.server.linux.arm
-@@ -1,9 +1,9 @@
+@@ -1,13 +1,13 @@
  # docker build --rm -f docker/Dockerfile -t drone/drone .
  
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.16 as alpine
- RUN apk add -U --no-cache ca-certificates
++FROM alpine:3.17 as alpine
+ RUN apk add -U --no-cache ca-certificates tzdata
  
 -FROM alpine:3.11
-+FROM alpine:3.16
++FROM alpine:3.17
  EXPOSE 80 443
  VOLUME /data
  
+-RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
++RUN test -e /etc/nsswitch.conf || echo 'hosts: files dns' > /etc/nsswitch.conf
+ 
+ ENV GODEBUG netdns=go
+ ENV XDG_CACHE_HOME /data
 diff --git a/docker/Dockerfile.server.linux.arm64 b/docker/Dockerfile.server.linux.arm64
-index b83678b1..b76ad494 100644
+index f0be8284..12cae753 100644
 --- a/docker/Dockerfile.server.linux.arm64
 +++ b/docker/Dockerfile.server.linux.arm64
-@@ -1,9 +1,9 @@
+@@ -1,13 +1,13 @@
  # docker build --rm -f docker/Dockerfile -t drone/drone .
  
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.16 as alpine
- RUN apk add -U --no-cache ca-certificates
++FROM alpine:3.17 as alpine
+ RUN apk add -U --no-cache ca-certificates tzdata
  
 -FROM alpine:3.11
-+FROM alpine:3.16
++FROM alpine:3.17
  EXPOSE 80 443
  VOLUME /data
  
+-RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
++RUN test -e /etc/nsswitch.conf || echo 'hosts: files dns' > /etc/nsswitch.conf
+ 
+ ENV GODEBUG netdns=go
+ ENV XDG_CACHE_HOME /data
 -- 
-2.36.1
+2.39.0
 
