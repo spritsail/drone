@@ -1,4 +1,4 @@
-From 64fe0bb3e51095c6801f3fba5c8c601ce38a8752 Mon Sep 17 00:00:00 2001
+From 95703e3175a53be1740f379f03d71bdb491bac5c Mon Sep 17 00:00:00 2001
 From: Joe Groocock <me@frebib.net>
 Date: Sun, 12 Jan 2020 16:14:02 +0000
 Subject: api: log respect x-forwarded-for
@@ -8,7 +8,7 @@ Subject: api: log respect x-forwarded-for
  1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/logger/handler.go b/logger/handler.go
-index b1b4a94b..609c5a29 100644
+index 54440518..43c636a3 100644
 --- a/logger/handler.go
 +++ b/logger/handler.go
 @@ -35,10 +35,16 @@ func Middleware(next http.Handler) http.Handler {
@@ -22,13 +22,13 @@ index b1b4a94b..609c5a29 100644
 +			client = fwded
 +		}
  		log.WithFields(logrus.Fields{
- 			"method":  r.Method,
- 			"request": r.RequestURI,
--			"remote":  r.RemoteAddr,
-+			"remote":  client,
- 			"latency": end.Sub(start),
- 			"time":    end.Format(time.RFC3339),
- 		}).Debug()
+ 			"method":   r.Method,
+ 			"request":  r.RequestURI,
+-			"remote":   r.RemoteAddr,
++			"remote":   client,
+ 			"latency":  end.Sub(start),
+ 			"time":     end.Format(time.RFC3339),
+ 			"authtype": authType(r),
 -- 
-2.39.0
+2.41.0
 

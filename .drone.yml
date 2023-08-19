@@ -7,7 +7,7 @@ platform:
   arch: amd64
 
 environment:
-  DRONE_VERSION: v2.16.0
+  DRONE_VERSION: v2.19.0
 
 steps:
 - name: patch

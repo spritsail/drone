@@ -1,7 +1,7 @@
-From f3310e0753712e370c1011d6ea8008ebab86c9cd Mon Sep 17 00:00:00 2001
+From e71069c23b3c64cdf74ec54e13188d64103e0bcb Mon Sep 17 00:00:00 2001
 From: Joe Groocock <me@frebib.net>
 Date: Sat, 18 Jun 2022 08:41:02 +0000
-Subject: Update Dockerfile(s) to alpine:3.17
+Subject: Update Dockerfile(s) to alpine:3.18
 
 Signed-off-by: Joe Groocock <me@frebib.net>
 ---
@@ -15,16 +15,16 @@ Signed-off-by: Joe Groocock <me@frebib.net>
  7 files changed, 18 insertions(+), 18 deletions(-)
 
 diff --git a/docker/Dockerfile.agent.linux.amd64 b/docker/Dockerfile.agent.linux.amd64
-index bb9899a8..8f9ab16c 100644
+index bb9899a8..180b166e 100644
 --- a/docker/Dockerfile.agent.linux.amd64
 +++ b/docker/Dockerfile.agent.linux.amd64
 @@ -1,7 +1,7 @@
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.17 as alpine
++FROM alpine:3.18 as alpine
  RUN apk add -U --no-cache ca-certificates tzdata
  
 -FROM alpine:3.11
-+FROM alpine:3.17
++FROM alpine:3.18
  ENV GODEBUG netdns=go
  ENV DRONE_RUNNER_OS=linux
  ENV DRONE_RUNNER_ARCH=amd64
@@ -38,60 +38,60 @@ index bb9899a8..8f9ab16c 100644
  COPY --from=alpine /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
  COPY --from=alpine /usr/share/zoneinfo /usr/share/zoneinfo
 diff --git a/docker/Dockerfile.controller.linux.amd64 b/docker/Dockerfile.controller.linux.amd64
-index 8161dc2c..f30c5cdf 100644
+index 8161dc2c..d9b1c3ac 100644
 --- a/docker/Dockerfile.controller.linux.amd64
 +++ b/docker/Dockerfile.controller.linux.amd64
 @@ -1,7 +1,7 @@
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.17 as alpine
++FROM alpine:3.18 as alpine
  RUN apk add -U --no-cache ca-certificates tzdata
  
 -FROM alpine:3.11
-+FROM alpine:3.17
++FROM alpine:3.18
  ENV GODEBUG netdns=go
  ENV DRONE_RUNNER_OS=linux
  ENV DRONE_RUNNER_ARCH=amd64
 diff --git a/docker/Dockerfile.controller.linux.arm b/docker/Dockerfile.controller.linux.arm
-index be509125..3894ae36 100644
+index be509125..68f6bb29 100644
 --- a/docker/Dockerfile.controller.linux.arm
 +++ b/docker/Dockerfile.controller.linux.arm
 @@ -1,7 +1,7 @@
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.17 as alpine
++FROM alpine:3.18 as alpine
  RUN apk add -U --no-cache ca-certificates tzdata
  
 -FROM alpine:3.11
-+FROM alpine:3.17
++FROM alpine:3.18
  ENV GODEBUG=netdns=go
  ENV DRONE_RUNNER_OS=linux
  ENV DRONE_RUNNER_ARCH=arm
 diff --git a/docker/Dockerfile.controller.linux.arm64 b/docker/Dockerfile.controller.linux.arm64
-index 54a1ca02..951de3e6 100644
+index 54a1ca02..d42ec2bc 100644
 --- a/docker/Dockerfile.controller.linux.arm64
 +++ b/docker/Dockerfile.controller.linux.arm64
 @@ -1,7 +1,7 @@
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.17 as alpine
++FROM alpine:3.18 as alpine
  RUN apk add -U --no-cache ca-certificates tzdata
  
 -FROM alpine:3.11
-+FROM alpine:3.17
++FROM alpine:3.18
  ENV GODEBUG=netdns=go
  ENV DRONE_RUNNER_OS=linux
  ENV DRONE_RUNNER_ARCH=arm64
 diff --git a/docker/Dockerfile.server.linux.amd64 b/docker/Dockerfile.server.linux.amd64
-index 1f4d604b..f9711b88 100644
+index 1f4d604b..644ef63b 100644
 --- a/docker/Dockerfile.server.linux.amd64
 +++ b/docker/Dockerfile.server.linux.amd64
 @@ -1,13 +1,13 @@
  # docker build --rm -f docker/Dockerfile -t drone/drone .
  
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.17 as alpine
++FROM alpine:3.18 as alpine
  RUN apk add -U --no-cache ca-certificates tzdata
  
 -FROM alpine:3.11
-+FROM alpine:3.17
++FROM alpine:3.18
  EXPOSE 80 443
  VOLUME /data
  
@@ -101,18 +101,18 @@ index 1f4d604b..f9711b88 100644
  ENV GODEBUG netdns=go
  ENV XDG_CACHE_HOME /data
 diff --git a/docker/Dockerfile.server.linux.arm b/docker/Dockerfile.server.linux.arm
-index 3f803d15..a1c3f48b 100644
+index 3f803d15..d6873997 100644
 --- a/docker/Dockerfile.server.linux.arm
 +++ b/docker/Dockerfile.server.linux.arm
 @@ -1,13 +1,13 @@
  # docker build --rm -f docker/Dockerfile -t drone/drone .
  
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.17 as alpine
++FROM alpine:3.18 as alpine
  RUN apk add -U --no-cache ca-certificates tzdata
  
 -FROM alpine:3.11
-+FROM alpine:3.17
++FROM alpine:3.18
  EXPOSE 80 443
  VOLUME /data
  
@@ -122,18 +122,18 @@ index 3f803d15..a1c3f48b 100644
  ENV GODEBUG netdns=go
  ENV XDG_CACHE_HOME /data
 diff --git a/docker/Dockerfile.server.linux.arm64 b/docker/Dockerfile.server.linux.arm64
-index f0be8284..12cae753 100644
+index f0be8284..d0377cac 100644
 --- a/docker/Dockerfile.server.linux.arm64
 +++ b/docker/Dockerfile.server.linux.arm64
 @@ -1,13 +1,13 @@
  # docker build --rm -f docker/Dockerfile -t drone/drone .
  
 -FROM alpine:3.11 as alpine
-+FROM alpine:3.17 as alpine
++FROM alpine:3.18 as alpine
  RUN apk add -U --no-cache ca-certificates tzdata
  
 -FROM alpine:3.11
-+FROM alpine:3.17
++FROM alpine:3.18
  EXPOSE 80 443
  VOLUME /data
  
@@ -143,5 +143,5 @@ index f0be8284..12cae753 100644
  ENV GODEBUG netdns=go
  ENV XDG_CACHE_HOME /data
 -- 
-2.39.0
+2.41.0
 
