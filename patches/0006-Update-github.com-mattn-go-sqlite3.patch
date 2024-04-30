@@ -1,0 +1,46 @@
+From f5cf838e61c655b04bb0856ae65af29d41bdc3fe Mon Sep 17 00:00:00 2001
+From: Joe Groocock <me@frebib.net>
+Date: Tue, 30 Apr 2024 20:46:01 +0000
+Subject: Update github.com/mattn/go-sqlite3
+
+Fixes build failure on musl[1]
+
+[1]: https://github.com/mattn/go-sqlite3/issues/1164
+
+Signed-off-by: Joe Groocock <me@frebib.net>
+---
+ go.mod | 2 +-
+ go.sum | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/go.mod b/go.mod
+index a5b5250d..8576636b 100644
+--- a/go.mod
++++ b/go.mod
+@@ -44,7 +44,7 @@ require (
+ 	github.com/kelseyhightower/envconfig v1.3.0
+ 	github.com/kr/pretty v0.2.0 // indirect
+ 	github.com/lib/pq v1.1.0
+-	github.com/mattn/go-sqlite3 v1.9.0
++	github.com/mattn/go-sqlite3 v1.14.22
+ 	github.com/oxtoacart/bpool v0.0.0-20150712133111-4e1c5567d7c2
+ 	github.com/prometheus/client_golang v0.9.2
+ 	github.com/rainycape/unidecode v0.0.0-20150907023854-cb7f23ec59be // indirect
+diff --git a/go.sum b/go.sum
+index 017b385d..4ac1cd0b 100644
+--- a/go.sum
++++ b/go.sum
+@@ -207,8 +207,8 @@ github.com/mattn/go-ieproxy v0.0.0-20190610004146-91bb50d98149/go.mod h1:31jz6HN
+ github.com/mattn/go-isatty v0.0.4/go.mod h1:M+lRXTBqGeGNdLjl/ufCoiOlB5xdOkqRJdNxMWT7Zi4=
+ github.com/mattn/go-isatty v0.0.8/go.mod h1:Iq45c/XA43vh69/j3iqttzPXn0bhXyGjM0Hdxcsrc5s=
+ github.com/mattn/go-isatty v0.0.11/go.mod h1:PhnuNfih5lzO57/f3n+odYbM4JtupLOxQOAqxQCu2WE=
+-github.com/mattn/go-sqlite3 v1.9.0 h1:pDRiWfl+++eC2FEFRy6jXmQlvp4Yh3z1MJKg4UeYM/4=
+-github.com/mattn/go-sqlite3 v1.9.0/go.mod h1:FPy6KqzDD04eiIsT53CuJW3U88zkxoIYsOqkbpncsNc=
++github.com/mattn/go-sqlite3 v1.14.22 h1:2gZY6PC6kBnID23Tichd1K+Z0oS6nE/XwU+Vz/5o4kU=
++github.com/mattn/go-sqlite3 v1.14.22/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
+ github.com/matttproud/golang_protobuf_extensions v1.0.1 h1:4hp9jkHxhMHkqkrB3Ix0jegS5sx/RkqARlsWZ6pIwiU=
+ github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
+ github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
+-- 
+2.45.0
+
