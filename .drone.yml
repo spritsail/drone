@@ -7,7 +7,7 @@ platform:
   arch: amd64
 
 environment:
-  DRONE_VERSION: v2.19.0
+  DRONE_VERSION: v2.23.0
 
 steps:
 - name: patch
@@ -15,7 +15,7 @@ steps:
   pull: always
   commands:
   - apk --no-cache add git
-  - git clone https://github.com/drone/drone.git
+  - git clone https://github.com/drone/drone.git -b drone --single-branch
   - git reset --hard ${DRONE_VERSION}
   - cd drone
   - git config user.name ${DRONE_COMMIT_AUTHOR:-drone}

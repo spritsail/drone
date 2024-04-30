@@ -1,4 +1,4 @@
-From f8bdb4ce8917f8c71c4a87d0da6eedb2894263d7 Mon Sep 17 00:00:00 2001
+From ab39cfaf9af6e6b235cdc2df73f2e8597abe4c9d Mon Sep 17 00:00:00 2001
 From: Joe Groocock <jgroocock@cloudflare.com>
 Date: Sat, 18 Jun 2022 08:34:12 +0000
 Subject: Remove licensing code
@@ -124,10 +124,10 @@ index 25c9b8eb..11b71661 100644
  			EnableGithubEnt: config.IsGitHubEnterprise(),
  			EnableGitlab:    config.IsGitLab(),
 diff --git a/cmd/drone-server/wire_gen.go b/cmd/drone-server/wire_gen.go
-index 99e04df4..212ffab9 100644
+index a673da88..6278f765 100644
 --- a/cmd/drone-server/wire_gen.go
 +++ b/cmd/drone-server/wire_gen.go
-@@ -15,7 +15,6 @@ import (
+@@ -16,7 +16,6 @@ import (
  	"github.com/drone/drone/service/canceler"
  	"github.com/drone/drone/service/commit"
  	"github.com/drone/drone/service/hook/parser"
@@ -135,7 +135,7 @@ index 99e04df4..212ffab9 100644
  	"github.com/drone/drone/service/linker"
  	"github.com/drone/drone/service/token"
  	"github.com/drone/drone/service/transfer"
-@@ -76,8 +75,7 @@ func InitializeApplication(config2 config.Config) (application, error) {
+@@ -77,8 +76,7 @@ func InitializeApplication(config2 config.Config) (application, error) {
  	triggerer := trigger.New(coreCanceler, configService, convertService, commitService, statusService, buildStore, scheduler, repositoryStore, userStore, validateService, webhookSender)
  	cronScheduler := cron2.New(commitService, cronStore, repositoryStore, userStore, triggerer)
  	reaper := provideReaper(repositoryStore, buildStore, stageStore, coreCanceler, config2)
@@ -145,7 +145,7 @@ index 99e04df4..212ffab9 100644
  	cardStore := card.New(db)
  	logStore := provideLogStore(db, config2)
  	logStream := livelog.New(redisDB)
-@@ -89,7 +87,6 @@ func InitializeApplication(config2 config.Config) (application, error) {
+@@ -90,7 +88,6 @@ func InitializeApplication(config2 config.Config) (application, error) {
  	registryService := provideRegistryPlugin(config2)
  	runner := provideRunner(buildManager, secretService, registryService, config2)
  	hookService := provideHookService(client, renewer, config2)
@@ -153,7 +153,7 @@ index 99e04df4..212ffab9 100644
  	organizationService := provideOrgService(client, renewer)
  	permStore := perm.New(db)
  	repositoryService := provideRepositoryService(client, renewer, config2)
-@@ -101,13 +98,13 @@ func InitializeApplication(config2 config.Config) (application, error) {
+@@ -102,13 +99,13 @@ func InitializeApplication(config2 config.Config) (application, error) {
  	syncer := provideSyncer(repositoryService, repositoryStore, userStore, batcher, config2)
  	transferer := transfer.New(repositoryStore, permStore)
  	userService := user.New(client, renewer)
@@ -264,7 +264,7 @@ index 0912528b..00000000
 -
 -package core
 diff --git a/handler/api/api.go b/handler/api/api.go
-index a2c7d800..9ead91ac 100644
+index 93769a3b..9de32bc2 100644
 --- a/handler/api/api.go
 +++ b/handler/api/api.go
 @@ -70,8 +70,6 @@ func New(
@@ -294,7 +294,7 @@ index a2c7d800..9ead91ac 100644
  	Orgs       core.OrganizationService
  	Perms      core.PermStore
  	Repos      core.RepositoryStore
-@@ -385,7 +379,6 @@ func (s Server) Handler() http.Handler {
+@@ -389,7 +383,6 @@ func (s Server) Handler() http.Handler {
  
  	r.Route("/system", func(r chi.Router) {
  		r.Use(acl.AuthorizeAdmin)
@@ -971,5 +971,5 @@ index ca4fa001..00000000
 -	return s.license.Expires
 -}
 -- 
-2.41.0
+2.45.0
 

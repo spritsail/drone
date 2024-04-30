@@ -1,4 +1,4 @@
-From 95703e3175a53be1740f379f03d71bdb491bac5c Mon Sep 17 00:00:00 2001
+From d2ee2a5c1d4ee0d0391c1ccfdea0f662b591db0d Mon Sep 17 00:00:00 2001
 From: Joe Groocock <me@frebib.net>
 Date: Sun, 12 Jan 2020 16:14:02 +0000
 Subject: api: log respect x-forwarded-for
@@ -30,5 +30,5 @@ index 54440518..43c636a3 100644
  			"time":     end.Format(time.RFC3339),
  			"authtype": authType(r),
 -- 
-2.41.0
+2.45.0
 
