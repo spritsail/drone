@@ -7,34 +7,21 @@ platform:
   arch: amd64
 
 environment:
-  DRONE_VERSION: v2.23.0
+  DRONE_VERSION: v2.26.0
 
 steps:
-- name: patch
-  image: alpine
-  pull: always
-  commands:
-  - apk --no-cache add git
-  - git clone https://github.com/drone/drone.git -b drone --single-branch
-  - git reset --hard ${DRONE_VERSION}
-  - cd drone
-  - git config user.name ${DRONE_COMMIT_AUTHOR:-drone}
-  - git config user.email ${DRONE_COMMIT_AUTHOR_EMAIL:-builder@drone.spritsail.io}
-  - git am ../patches/*
-
 - name: build-drone
   pull: always
   image: golang:alpine
   commands:
   - apk --no-cache add gcc libc-dev
-  - cd drone
-  - go build -a -ldflags "-w -s -extldflags \"-static\"" -o ../release/${DRONE_STAGE_OS}/${DRONE_STAGE_ARCH}/drone-server ./cmd/drone-server
+  - go build -a -ldflags "-w -s -extldflags \"-static\"" -o release/${DRONE_STAGE_OS}/${DRONE_STAGE_ARCH}/drone-server ./cmd/drone-server
 
 - name: build-docker
   pull: always
   image: spritsail/docker-build
   settings:
-    dockerfile: drone/docker/Dockerfile.server.${DRONE_STAGE_OS}.${DRONE_STAGE_ARCH}
+    dockerfile: docker/Dockerfile.server.${DRONE_STAGE_OS}.${DRONE_STAGE_ARCH}
     repo: drone/spritsail/drone/${DRONE_BUILD_NUMBER}:${DRONE_STAGE_ARCH}
 
 - name: publish
@@ -55,6 +42,6 @@ steps:
 
 ---
 kind: signature
-hmac: ca0f6abc799f220e2bc485e16202fce2518a130fedea6775b9e2bb5e9fd527aa
+hmac: f03796b92697da3f913cf8d449423494fafcda25839f3372d8d764c7e87207fb
 
 ...
