@@ -5,7 +5,6 @@ replace github.com/docker/docker => github.com/docker/engine v17.12.0-ce-rc1.0.2
 require (
 	github.com/766b/chi-prometheus v0.0.0-20211217152057-87afa9aa2ca8
 	github.com/99designs/httpsignatures-go v0.0.0-20170731043157-88528bf4ca7e
-	github.com/Azure/azure-storage-blob-go v0.7.0
 	github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a
 	github.com/aws/aws-sdk-go v1.37.3
 	github.com/coreos/go-semver v0.3.0
@@ -53,8 +52,6 @@ require (
 )
 
 require (
-	github.com/Azure/azure-pipeline-go v0.2.1 // indirect
-	github.com/Azure/go-autorest/autorest/adal v0.9.24 // indirect
 	github.com/Microsoft/go-winio v0.5.2 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bmatcuk/doublestar v1.1.1 // indirect
@@ -74,7 +71,6 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	github.com/mattn/go-ieproxy v0.0.0-20190610004146-91bb50d98149 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/natessilva/dag v0.0.0-20180124060714-7194b8dcc5c4 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect

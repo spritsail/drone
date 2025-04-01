@@ -49,7 +49,6 @@ type (
 
 		Authn        Authentication
 		Agent        Agent
-		AzureBlob    AzureBlob
 		Convert      Convert
 		Cleanup      Cleanup
 		Cron         Cron
@@ -409,13 +408,6 @@ type (
 		Prefix    string `envconfig:"DRONE_S3_PREFIX"`
 		Endpoint  string `envconfig:"DRONE_S3_ENDPOINT"`
 		PathStyle bool   `envconfig:"DRONE_S3_PATH_STYLE"`
-	}
-
-	//AzureBlob providers the storage configuration.
-	AzureBlob struct {
-		ContainerName      string `envconfig:"DRONE_AZURE_BLOB_CONTAINER_NAME"`
-		StorageAccountName string `envconfig:"DRONE_AZURE_STORAGE_ACCOUNT_NAME"`
-		StorageAccessKey   string `envconfig:"DRONE_AZURE_STORAGE_ACCESS_KEY"`
 	}
 
 	// HTTP provides http configuration.

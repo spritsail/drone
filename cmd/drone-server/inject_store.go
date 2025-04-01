@@ -112,14 +112,6 @@ func provideLogStore(db *db.DB, config config.Config) core.LogStore {
 		)
 		return logs.NewCombined(p, s)
 	}
-	if config.AzureBlob.ContainerName != "" {
-		p := logs.NewAzureBlobEnv(
-			config.AzureBlob.ContainerName,
-			config.AzureBlob.StorageAccountName,
-			config.AzureBlob.StorageAccessKey,
-		)
-		return logs.NewCombined(p, s)
-	}
 	return s
 }
 
