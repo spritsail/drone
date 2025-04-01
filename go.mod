@@ -38,7 +38,7 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/kelseyhightower/envconfig v1.3.0
 	github.com/lib/pq v1.1.0
-	github.com/mattn/go-sqlite3 v1.9.0
+	github.com/mattn/go-sqlite3 v1.14.25
 	github.com/oxtoacart/bpool v0.0.0-20150712133111-4e1c5567d7c2
 	github.com/prometheus/client_golang v1.11.1
 	github.com/robfig/cron v0.0.0-20180505203441-b41be1df6967
